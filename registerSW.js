@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/meu-calend-rio-brasil/sw.js', { scope: '/meu-calend-rio-brasil/' })})}
