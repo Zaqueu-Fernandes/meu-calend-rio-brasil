@@ -5,8 +5,9 @@ import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig(({ mode }) => ({
-  // Define a base como o nome do repositório no GitHub para os caminhos funcionarem
-  base: '/meu-calend-rio-brasil/',
+  // Se estiver em produção (build), usa o caminho do github. 
+  // Se estiver em desenvolvimento (dev), usa a raiz '/'.
+  base: mode === 'production' ? '/meu-calend-rio-brasil/' : '/',
   server: {
     host: "::",
     port: 8080,
