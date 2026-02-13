@@ -5,6 +5,8 @@ import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig(({ mode }) => ({
+  // Define a base como o nome do repositório no GitHub para os caminhos funcionarem
+  base: '/meu-calend-rio-brasil/',
   server: {
     host: "::",
     port: 8080,
@@ -19,17 +21,18 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico"],
       manifest: {
-        name: "MeuCalendário",
-        short_name: "MeuCalendário",
+        name: "CalendarioDoZaqueu",
+        short_name: "ZaqueuCal", // Nome curto para não cortar no ícone do celular
         description: "Seu calendário brasileiro completo com feriados e fases da lua",
         theme_color: "#16a34a",
         background_color: "#fefdf8",
         display: "standalone",
         orientation: "portrait",
-        start_url: "/",
+        // Ajustado para o subdiretório do GitHub Pages
+        start_url: "/meu-calend-rio-brasil/",
         icons: [
           {
-            src: "/favicon.ico",
+            src: "/meu-calend-rio-brasil/favicon.ico",
             sizes: "64x64",
             type: "image/x-icon",
           },
