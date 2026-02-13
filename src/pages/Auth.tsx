@@ -28,18 +28,24 @@ const Auth = () => {
         if (error) throw error;
         navigate('/');
       } else {
+        // CADASTRO: Enviando 'nome' para o Trigger do Supabase ler
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            data: { display_name: displayName },
+            data: { 
+              nome: displayName // Chave alterada para 'nome' conforme o SQL do Trigger
+            },
+            // Garante que o redirecionamento volte para o seu site no GitHub Pages
             emailRedirectTo: window.location.origin,
           },
         });
+        
         if (error) throw error;
+        
         toast({
-          title: 'Conta criada!',
-          description: 'Verifique seu e-mail para confirmar o cadastro.',
+          title: 'Verifique seu e-mail',
+          description: 'Enviamos um link de confirmação para sua caixa de entrada.',
         });
       }
     } catch (error: any) {
@@ -66,7 +72,8 @@ const Auth = () => {
             <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center">
               <Calendar className="w-8 h-8 text-primary-foreground" />
             </div>
-            <h1 className="text-4xl font-bold text-foreground">MeuCalendário</h1>
+            {/* Nome atualizado conforme sua preferência */}
+            <h1 className="text-4xl font-bold text-foreground">Calendário do Zaqueu</h1>
           </div>
           <p className="text-muted-foreground text-lg">
             Seu calendário brasileiro completo 🇧🇷
@@ -88,11 +95,11 @@ const Auth = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
                 <div className="space-y-2">
-                  <Label htmlFor="displayName">Nome</Label>
+                  <Label htmlFor="displayName">Nome Completo</Label>
                   <Input
                     id="displayName"
                     type="text"
-                    placeholder="Seu nome"
+                    placeholder="Como deseja ser chamado?"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     required={!isLogin}
