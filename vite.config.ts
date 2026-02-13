@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico"],
       manifest: {
-        name: "CalendarioDoZaqueu",
+        name: "Calendario do Zaqueu",
         short_name: "ZaqueuCal", // Nome curto para não cortar no ícone do celular
         description: "Seu calendário brasileiro completo com feriados e fases da lua",
         theme_color: "#16a34a",
