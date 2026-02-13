@@ -7,19 +7,38 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
-import { Calendar, LogIn, UserPlus } from 'lucide-react';
+import { Calendar, LogIn, UserPlus, Phone } from 'lucide-react'; // Adicionado ícone Phone
+import InputMask from 'react-input-mask';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [phone, setPhone] = useState(''); // Novo estado para o telefone
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Lógica de Validação do Telefone (apenas no cadastro)
+    if (!isLogin) {
+      const numericPhone = phone.replace(/\D/g, ''); // Remove ( ) - e espaços
+      
+      // Validação: DDD (2 dígitos) + o próximo deve ser 9 + restante
+      // O numericPhone[2] é o terceiro caractere da string (o primeiro após o DDD)
+      if (numericPhone.length < 11 || numericPhone[2] !== '9') {
+        toast({
+          title: 'Telefone inválido',
+          description: 'O número deve ter o formato (XX) 9XXXX-XXXX',
+          variant: 'destructive',
+        });
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
@@ -28,15 +47,14 @@ const Auth = () => {
         if (error) throw error;
         navigate('/');
       } else {
-        // CADASTRO: Enviando 'nome' para o Trigger do Supabase ler
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             data: { 
-              nome: displayName // Chave alterada para 'nome' conforme o SQL do Trigger
+              nome: displayName,
+              telefone: phone // Enviando o telefone formatado
             },
-            // Garante que o redirecionamento volte para o seu site no GitHub Pages
             emailRedirectTo: window.location.origin,
           },
         });
@@ -44,8 +62,8 @@ const Auth = () => {
         if (error) throw error;
         
         toast({
-          title: 'Verifique seu e-mail',
-          description: 'Enviamos um link de confirmação para sua caixa de entrada.',
+          title: 'Conta criada!',
+          description: 'Verifique seu e-mail para confirmar o cadastro.',
         });
       }
     } catch (error: any) {
@@ -72,7 +90,6 @@ const Auth = () => {
             <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center">
               <Calendar className="w-8 h-8 text-primary-foreground" />
             </div>
-            {/* Nome atualizado conforme sua preferência */}
             <h1 className="text-4xl font-bold text-foreground">Calendário do Zaqueu</h1>
           </div>
           <p className="text-muted-foreground text-lg">
@@ -94,18 +111,41 @@ const Auth = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
-                <div className="space-y-2">
-                  <Label htmlFor="displayName">Nome Completo</Label>
-                  <Input
-                    id="displayName"
-                    type="text"
-                    placeholder="Como deseja ser chamado?"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    required={!isLogin}
-                  />
-                </div>
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="displayName">Nome</Label>
+                    <Input
+                      id="displayName"
+                      type="text"
+                      placeholder="Seu nome completo"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      required={!isLogin}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Telefone (WhatsApp)</Label>
+                    <InputMask
+                      mask="(99) 99999-9999"
+                      value={phone}
+                      onChange={(e: any) => setPhone(e.target.value)}
+                      required={!isLogin}
+                    >
+                      {/* @ts-ignore */}
+                      {(inputProps: any) => (
+                        <Input
+                          {...inputProps}
+                          id="phone"
+                          type="text"
+                          placeholder="(88) 99999-9999"
+                        />
+                      )}
+                    </InputMask>
+                  </div>
+                </>
               )}
+              
               <div className="space-y-2">
                 <Label htmlFor="email">E-mail</Label>
                 <Input
