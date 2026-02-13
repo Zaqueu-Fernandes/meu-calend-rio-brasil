@@ -10,16 +10,22 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// Define o basename dinamicamente: 
+// Se estiver no GitHub (produção), usa o nome do repositório.
+// Se estiver local (dev), usa a raiz.
+const basename = import.meta.env.MODE === 'production' ? '/meu-calend-rio-brasil' : '';
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter basename={basename}>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/install" element={<Install />} />
+          {/* O asterisco captura qualquer rota não encontrada dentro do basename */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
