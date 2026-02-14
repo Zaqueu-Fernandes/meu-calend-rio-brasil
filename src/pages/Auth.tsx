@@ -7,32 +7,39 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
-import { Calendar, LogIn, UserPlus, Phone } from 'lucide-react'; // Adicionado ícone Phone
-import InputMask from 'react-input-mask';
+import { Calendar, LogIn, UserPlus } from 'lucide-react';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [phone, setPhone] = useState(''); // Novo estado para o telefone
+  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Máscara de telefone manual: (99) 99999-9999
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let v = e.target.value.replace(/\D/g, ""); // Remove o que não é número
+    if (v.length > 11) v = v.slice(0, 11);
+    
+    if (v.length > 2) v = `(${v.slice(0, 2)}) ${v.slice(2)}`;
+    if (v.length > 7) v = `${v.slice(0, 10)}-${v.slice(10)}`;
+    
+    setPhone(v);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Lógica de Validação do Telefone (apenas no cadastro)
     if (!isLogin) {
-      const numericPhone = phone.replace(/\D/g, ''); // Remove ( ) - e espaços
-      
-      // Validação: DDD (2 dígitos) + o próximo deve ser 9 + restante
-      // O numericPhone[2] é o terceiro caractere da string (o primeiro após o DDD)
+      const numericPhone = phone.replace(/\D/g, '');
+      // Validação do 9 após o DDD
       if (numericPhone.length < 11 || numericPhone[2] !== '9') {
         toast({
           title: 'Telefone inválido',
-          description: 'O número deve ter o formato (XX) 9XXXX-XXXX',
+          description: 'O número deve ter o 9 após o DDD. Ex: (88) 9XXXX-XXXX',
           variant: 'destructive',
         });
         return;
@@ -53,7 +60,7 @@ const Auth = () => {
           options: {
             data: { 
               nome: displayName,
-              telefone: phone // Enviando o telefone formatado
+              telefone: phone 
             },
             emailRedirectTo: window.location.origin,
           },
@@ -62,7 +69,7 @@ const Auth = () => {
         if (error) throw error;
         
         toast({
-          title: 'Conta criada!',
+          title: 'Sucesso!',
           description: 'Verifique seu e-mail para confirmar o cadastro.',
         });
       }
@@ -92,20 +99,13 @@ const Auth = () => {
             </div>
             <h1 className="text-4xl font-bold text-foreground">Calendário do Zaqueu</h1>
           </div>
-          <p className="text-muted-foreground text-lg">
-            Seu calendário brasileiro completo 🇧🇷
-          </p>
         </div>
 
-        <Card className="shadow-xl border-2 border-border">
+        <Card className="shadow-xl">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">
-              {isLogin ? 'Entrar' : 'Criar Conta'}
-            </CardTitle>
+            <CardTitle className="text-2xl">{isLogin ? 'Entrar' : 'Criar Conta'}</CardTitle>
             <CardDescription>
-              {isLogin
-                ? 'Acesse seus eventos e compromissos'
-                : 'Crie uma conta para salvar seus eventos'}
+              {isLogin ? 'Bem-vindo de volta!' : 'Crie sua conta personalizada'}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -116,36 +116,24 @@ const Auth = () => {
                     <Label htmlFor="displayName">Nome</Label>
                     <Input
                       id="displayName"
-                      type="text"
-                      placeholder="Seu nome completo"
+                      placeholder="Seu nome"
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
-                      required={!isLogin}
+                      required
                     />
                   </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="phone">Telefone (WhatsApp)</Label>
-                    <InputMask
-                      mask="(99) 99999-9999"
+                    <Input
+                      id="phone"
+                      placeholder="(88) 99999-9999"
                       value={phone}
-                      onChange={(e: any) => setPhone(e.target.value)}
-                      required={!isLogin}
-                    >
-                      {/* Remova o @ts-ignore e tente este formato mais simples se o outro falhar */}
-  		      {(inputProps: any) => (
-    			<Input
-      			 {...inputProps}
-      			 id="phone"
-      			 type="text"
-      			 placeholder="(88) 99999-9999"
-                        />
-                      )}
-                    </InputMask>
+                      onChange={handlePhoneChange}
+                      required
+                    />
                   </div>
                 </>
               )}
-              
               <div className="space-y-2">
                 <Label htmlFor="email">E-mail</Label>
                 <Input
@@ -162,21 +150,14 @@ const Auth = () => {
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Mínimo 6 caracteres"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
                 />
               </div>
-              <Button type="submit" className="w-full text-lg h-12" disabled={loading}>
-                {loading ? (
-                  'Aguarde...'
-                ) : isLogin ? (
-                  <span className="flex items-center gap-2"><LogIn className="w-5 h-5" /> Entrar</span>
-                ) : (
-                  <span className="flex items-center gap-2"><UserPlus className="w-5 h-5" /> Criar Conta</span>
-                )}
+              <Button type="submit" className="w-full h-12" disabled={loading}>
+                {loading ? 'Processando...' : isLogin ? 'Entrar' : 'Criar Minha Conta'}
               </Button>
             </form>
             <div className="mt-6 text-center">
@@ -185,7 +166,7 @@ const Auth = () => {
                 onClick={() => setIsLogin(!isLogin)}
                 className="text-primary hover:underline font-medium"
               >
-                {isLogin ? 'Não tem conta? Criar uma' : 'Já tem conta? Entrar'}
+                {isLogin ? 'Não tem conta? Cadastre-se' : 'Já tem conta? Faça login'}
               </button>
             </div>
           </CardContent>
