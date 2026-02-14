@@ -132,13 +132,13 @@ const Auth = () => {
                       onChange={(e: any) => setPhone(e.target.value)}
                       required={!isLogin}
                     >
-                      {/* @ts-ignore */}
-                      {(inputProps: any) => (
-                        <Input
-                          {...inputProps}
-                          id="phone"
-                          type="text"
-                          placeholder="(88) 99999-9999"
+                      {/* Remova o @ts-ignore e tente este formato mais simples se o outro falhar */}
+  		      {(inputProps: any) => (
+    			<Input
+      			 {...inputProps}
+      			 id="phone"
+      			 type="text"
+      			 placeholder="(88) 99999-9999"
                         />
                       )}
                     </InputMask>
