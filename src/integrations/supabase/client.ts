@@ -1,12 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Usando exatamente os nomes que estão no seu arquivo .env
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-if (!SUPABASE_URL || !SUPABASE_KEY) {
-  console.error("ERRO: Variáveis de ambiente do Supabase não encontradas!");
-}
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://mojasnovcwxulhxhgyqs.supabase.co";
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vamFzbm92Y3d4dWxoeGhneXFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5NzcyNzcsImV4cCI6MjA4NjU1MzI3N30.RjJBKA_IcO-2XdRzJqP5xD4HNvmdNsEbCjnT_PW9kLg";
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: {
