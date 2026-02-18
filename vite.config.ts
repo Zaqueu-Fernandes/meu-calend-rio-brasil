@@ -5,9 +5,7 @@ import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig(({ mode }) => ({
-  // Se estiver em produção (build), usa o caminho do github. 
-  // Se estiver em desenvolvimento (dev), usa a raiz '/'.
-  base: mode === 'production' ? '/meu-calend-rio-brasil/' : '/',
+  base: '/',
   server: {
     host: "::",
     port: 8080,
@@ -29,11 +27,10 @@ export default defineConfig(({ mode }) => ({
         background_color: "#fefdf8",
         display: "standalone",
         orientation: "portrait",
-        // Ajustado para o subdiretório do GitHub Pages
-        start_url: "/meu-calend-rio-brasil/",
+        start_url: "/",
         icons: [
           {
-            src: "/meu-calend-rio-brasil/favicon.ico",
+            src: "/favicon.ico",
             sizes: "64x64",
             type: "image/x-icon",
           },
