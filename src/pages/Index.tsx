@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useEventos } from '@/hooks/useEventos';
@@ -9,6 +9,7 @@ import DetalhesDia from '@/components/DetalhesDia';
 import EventoForm from '@/components/EventoForm';
 import FeriadosList from '@/components/FeriadosList';
 import { Button } from '@/components/ui/button';
+import PwaInstallBanner from '@/components/PwaInstallBanner';
 import { ChevronLeft, ChevronRight, LogOut, Calendar, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -25,6 +26,12 @@ const Index = () => {
   const { eventos, criarEvento, excluirEvento } = useEventos(mesAtual, anoAtual);
   const feriados = useMemo(() => getFeriadosBrasileiros(anoAtual), [anoAtual]);
 
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/auth');
+    }
+  }, [user, authLoading, navigate]);
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -36,10 +43,7 @@ const Index = () => {
     );
   }
 
-  if (!user) {
-    navigate('/auth');
-    return null;
-  }
+  if (!user) return null;
 
   const mesAnterior = () => {
     if (mesAtual === 0) { setMesAtual(11); setAnoAtual(a => a - 1); }
@@ -160,6 +164,8 @@ const Index = () => {
           onSalvar={criarEvento}
         />
       )}
+
+      <PwaInstallBanner />
     </div>
   );
 };
