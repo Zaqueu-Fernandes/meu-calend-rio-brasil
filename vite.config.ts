@@ -5,7 +5,7 @@ import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig(({ mode }) => ({
-  base: '/',
+  base: '/meu-calend-rio-brasil/',
   server: {
     host: "::",
     port: 8080,
@@ -30,20 +30,21 @@ export default defineConfig(({ mode }) => ({
         background_color: "#fefdf8",
         display: "standalone",
         orientation: "portrait",
-        start_url: "/",
+        start_url: "/meu-calend-rio-brasil/",
+        scope: "/meu-calend-rio-brasil/",
         icons: [
           {
-            src: "/icon-192.png",
+            src: "/meu-calend-rio-brasil/icon-192.png",
             sizes: "192x192",
             type: "image/png",
           },
           {
-            src: "/icon-512.png",
+            src: "/meu-calend-rio-brasil/icon-512.png",
             sizes: "512x512",
             type: "image/png",
           },
           {
-            src: "/icon-512.png",
+            src: "/meu-calend-rio-brasil/icon-512.png",
             sizes: "512x512",
             type: "image/png",
             purpose: "maskable",
