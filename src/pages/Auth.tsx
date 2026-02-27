@@ -171,8 +171,11 @@ const Auth = () => {
                     }
                     setLoading(true);
                     try {
+                      const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+                      const resetUrl = new URL(`${basePath}/reset-password`, window.location.origin);
+                      resetUrl.searchParams.set('type', 'recovery');
                       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-                        redirectTo: `${window.location.origin}${import.meta.env.BASE_URL.replace(/\/$/, '')}/reset-password`,
+                        redirectTo: resetUrl.toString(),
                       });
                       if (error) throw error;
                       toast({ title: 'E-mail enviado!', description: 'Verifique sua caixa de entrada para redefinir sua senha.' });
