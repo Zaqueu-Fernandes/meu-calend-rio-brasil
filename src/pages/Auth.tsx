@@ -160,7 +160,35 @@ const Auth = () => {
                 {loading ? 'Processando...' : isLogin ? 'Entrar' : 'Criar Minha Conta'}
               </Button>
             </form>
-            <div className="mt-6 text-center">
+            {isLogin && (
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!email) {
+                      toast({ title: 'Informe seu e-mail', description: 'Digite seu e-mail acima para receber o link de recuperação.', variant: 'destructive' });
+                      return;
+                    }
+                    setLoading(true);
+                    try {
+                      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                        redirectTo: `${window.location.origin}${import.meta.env.BASE_URL.replace(/\/$/, '')}/reset-password`,
+                      });
+                      if (error) throw error;
+                      toast({ title: 'E-mail enviado!', description: 'Verifique sua caixa de entrada para redefinir sua senha.' });
+                    } catch (error: any) {
+                      toast({ title: 'Erro', description: error.message, variant: 'destructive' });
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                  className="text-sm text-muted-foreground hover:text-primary hover:underline"
+                >
+                  Esqueci minha senha
+                </button>
+              </div>
+            )}
+            <div className="mt-4 text-center">
               <button
                 type="button"
                 onClick={() => setIsLogin(!isLogin)}
