@@ -18,13 +18,26 @@ const ResetPassword = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Check hash (implicit flow) and query params (PKCE flow)
     const hash = window.location.hash;
-    if (hash.includes('type=recovery')) {
+    const params = new URLSearchParams(window.location.search);
+    if (hash.includes('type=recovery') || params.get('type') === 'recovery' || params.get('code')) {
       setIsRecovery(true);
     }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
+        setIsRecovery(true);
+      }
+      // Also detect if user arrived via recovery link and already has a session
+      if (event === 'SIGNED_IN' && session) {
+        setIsRecovery(true);
+      }
+    });
+
+    // Check if there's already an active session (user arrived via recovery link)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
         setIsRecovery(true);
       }
     });
