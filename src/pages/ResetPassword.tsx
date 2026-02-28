@@ -9,6 +9,9 @@ import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { Calendar, Lock } from 'lucide-react';
 
+const RECOVERY_FLAG_KEY = 'auth_recovery_pending_at';
+const RECOVERY_FLAG_TTL_MS = 30 * 60 * 1000;
+
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -17,27 +20,64 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const markRecoveryPending = () => {
+    sessionStorage.setItem(RECOVERY_FLAG_KEY, Date.now().toString());
+  };
+
+  const clearRecoveryPending = () => {
+    sessionStorage.removeItem(RECOVERY_FLAG_KEY);
+  };
+
+  const hasValidRecoveryFlag = () => {
+    const rawValue = sessionStorage.getItem(RECOVERY_FLAG_KEY);
+    if (!rawValue) return false;
+
+    const timestamp = Number(rawValue);
+    const isExpired = Number.isNaN(timestamp) || Date.now() - timestamp > RECOVERY_FLAG_TTL_MS;
+
+    if (isExpired) {
+      sessionStorage.removeItem(RECOVERY_FLAG_KEY);
+      return false;
+    }
+
+    return true;
+  };
+
   useEffect(() => {
-    // Check hash (implicit flow) and query params (PKCE flow)
+    // Check hash (implicit flow), query params (PKCE flow) and recovery marker
     const hash = window.location.hash;
     const params = new URLSearchParams(window.location.search);
-    if (hash.includes('type=recovery') || params.get('type') === 'recovery' || params.get('code')) {
+    const hasRecoveryParams =
+      hash.includes('type=recovery') ||
+      hash.includes('access_token=') ||
+      hash.includes('token_hash=') ||
+      params.get('type') === 'recovery' ||
+      params.has('code');
+
+    if (hasRecoveryParams) {
+      markRecoveryPending();
       setIsRecovery(true);
     }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    if (hasValidRecoveryFlag()) {
+      setIsRecovery(true);
+    }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
+        markRecoveryPending();
         setIsRecovery(true);
+        return;
       }
-      // Also detect if user arrived via recovery link and already has a session
-      if (event === 'SIGNED_IN' && session) {
+
+      if (event === 'SIGNED_IN' && (hasRecoveryParams || hasValidRecoveryFlag())) {
         setIsRecovery(true);
       }
     });
 
-    // Check if there's already an active session (user arrived via recovery link)
+    // Check if there's already an active session tied to recovery context
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
+      if (session && (hasRecoveryParams || hasValidRecoveryFlag())) {
         setIsRecovery(true);
       }
     });
@@ -64,6 +104,7 @@ const ResetPassword = () => {
       if (error) throw error;
 
       toast({ title: 'Sucesso!', description: 'Sua senha foi redefinida com sucesso.' });
+      clearRecoveryPending();
       navigate('/');
     } catch (error: any) {
       toast({ title: 'Erro', description: error.message, variant: 'destructive' });
@@ -81,7 +122,10 @@ const ResetPassword = () => {
             <CardDescription>Este link de recuperação é inválido ou expirou.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => navigate('/auth')} className="w-full">Voltar ao login</Button>
+            <Button onClick={() => {
+              clearRecoveryPending();
+              navigate('/auth');
+            }} className="w-full">Voltar ao login</Button>
           </CardContent>
         </Card>
       </div>

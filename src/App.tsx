@@ -16,9 +16,31 @@ const basename = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 // MeuCalendario App
 
+const RECOVERY_FLAG_KEY = "auth_recovery_pending_at";
+const RECOVERY_FLAG_TTL_MS = 30 * 60 * 1000;
+
 const RecoveryRedirectHandler = () => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  const markRecoveryPending = () => {
+    sessionStorage.setItem(RECOVERY_FLAG_KEY, Date.now().toString());
+  };
+
+  const hasValidRecoveryFlag = () => {
+    const rawValue = sessionStorage.getItem(RECOVERY_FLAG_KEY);
+    if (!rawValue) return false;
+
+    const timestamp = Number(rawValue);
+    const isExpired = Number.isNaN(timestamp) || Date.now() - timestamp > RECOVERY_FLAG_TTL_MS;
+
+    if (isExpired) {
+      sessionStorage.removeItem(RECOVERY_FLAG_KEY);
+      return false;
+    }
+
+    return true;
+  };
 
   const hasRecoveryParams = () => {
     const hash = window.location.hash;
@@ -27,6 +49,7 @@ const RecoveryRedirectHandler = () => {
     return (
       hash.includes("type=recovery") ||
       hash.includes("access_token=") ||
+      hash.includes("token_hash=") ||
       params.get("type") === "recovery" ||
       params.has("code")
     );
@@ -47,6 +70,10 @@ const RecoveryRedirectHandler = () => {
 
   useEffect(() => {
     if (hasRecoveryParams()) {
+      markRecoveryPending();
+    }
+
+    if (location.pathname === "/" && (hasRecoveryParams() || hasValidRecoveryFlag())) {
       redirectToResetPassword();
     }
 
@@ -54,11 +81,12 @@ const RecoveryRedirectHandler = () => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
+        markRecoveryPending();
         redirectToResetPassword();
         return;
       }
 
-      if (event === "SIGNED_IN" && hasRecoveryParams()) {
+      if (event === "SIGNED_IN" && location.pathname === "/" && (hasRecoveryParams() || hasValidRecoveryFlag())) {
         redirectToResetPassword();
       }
     });
