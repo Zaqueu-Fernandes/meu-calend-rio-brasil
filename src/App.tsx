@@ -20,20 +20,46 @@ const RecoveryRedirectHandler = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  useEffect(() => {
+  const hasRecoveryParams = () => {
     const hash = window.location.hash;
     const params = new URLSearchParams(window.location.search);
-    const isRecoveryLink = hash.includes("type=recovery") || params.get("type") === "recovery";
 
-    if (isRecoveryLink && location.pathname !== "/reset-password") {
-      navigate("/reset-password", { replace: true });
+    return (
+      hash.includes("type=recovery") ||
+      hash.includes("access_token=") ||
+      params.get("type") === "recovery" ||
+      params.has("code")
+    );
+  };
+
+  const redirectToResetPassword = () => {
+    if (location.pathname === "/reset-password") return;
+
+    navigate(
+      {
+        pathname: "/reset-password",
+        search: window.location.search,
+        hash: window.location.hash,
+      },
+      { replace: true }
+    );
+  };
+
+  useEffect(() => {
+    if (hasRecoveryParams()) {
+      redirectToResetPassword();
     }
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY" && location.pathname !== "/reset-password") {
-        navigate("/reset-password", { replace: true });
+      if (event === "PASSWORD_RECOVERY") {
+        redirectToResetPassword();
+        return;
+      }
+
+      if (event === "SIGNED_IN" && hasRecoveryParams()) {
+        redirectToResetPassword();
       }
     });
 

@@ -84,6 +84,35 @@ const Auth = () => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast({
+        title: 'Informe seu e-mail',
+        description: 'Digite seu e-mail acima para receber o link de recuperação.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+      const resetUrl = new URL(`${basePath}/reset-password`, window.location.origin);
+      resetUrl.searchParams.set('type', 'recovery');
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: resetUrl.toString(),
+      });
+
+      if (error) throw error;
+      toast({ title: 'E-mail enviado!', description: 'Verifique sua caixa de entrada para redefinir sua senha.' });
+    } catch (error: any) {
+      toast({ title: 'Erro', description: error.message, variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <motion.div
@@ -160,37 +189,15 @@ const Auth = () => {
                 {loading ? 'Processando...' : isLogin ? 'Entrar' : 'Criar Minha Conta'}
               </Button>
             </form>
-            {isLogin && (
-              <div className="mt-4 text-center">
-                <button
-                  type="button"
-                  onClick={async () => {
-                    if (!email) {
-                      toast({ title: 'Informe seu e-mail', description: 'Digite seu e-mail acima para receber o link de recuperação.', variant: 'destructive' });
-                      return;
-                    }
-                    setLoading(true);
-                    try {
-                      const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
-                      const resetUrl = new URL(`${basePath}/reset-password`, window.location.origin);
-                      resetUrl.searchParams.set('type', 'recovery');
-                      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-                        redirectTo: resetUrl.toString(),
-                      });
-                      if (error) throw error;
-                      toast({ title: 'E-mail enviado!', description: 'Verifique sua caixa de entrada para redefinir sua senha.' });
-                    } catch (error: any) {
-                      toast({ title: 'Erro', description: error.message, variant: 'destructive' });
-                    } finally {
-                      setLoading(false);
-                    }
-                  }}
-                  className="text-sm text-muted-foreground hover:text-primary hover:underline"
-                >
-                  Esqueci minha senha
-                </button>
-              </div>
-            )}
+            <div className="mt-4 text-center">
+              <button
+                type="button"
+                onClick={isLogin ? handleForgotPassword : () => setIsLogin(true)}
+                className="text-sm text-muted-foreground hover:text-primary hover:underline"
+              >
+                {isLogin ? 'Esqueci minha senha' : 'Esqueci minha senha (voltar para login)'}
+              </button>
+            </div>
             <div className="mt-4 text-center">
               <button
                 type="button"
