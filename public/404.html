@@ -4,9 +4,10 @@
     <meta charset="utf-8">
     <title>Calendário do Zaqueu</title>
     <script>
-      // Redireciona todas as rotas para index.html (SPA no GitHub Pages)
-      var pathSegmentsToKeep = 1; // /meu-calend-rio-brasil/
+      // Redireciona rotas SPA preservando compatibilidade em raiz e subdiretório
       var l = window.location;
+      var repoBase = 'meu-calend-rio-brasil';
+      var pathSegmentsToKeep = l.pathname.startsWith('/' + repoBase + '/') ? 1 : 0;
       l.replace(
         l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
         l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +

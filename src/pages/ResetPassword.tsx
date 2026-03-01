@@ -8,9 +8,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { Calendar, Lock } from 'lucide-react';
-
-const RECOVERY_FLAG_KEY = 'auth_recovery_pending_at';
-const RECOVERY_FLAG_TTL_MS = 30 * 60 * 1000;
+import {
+  clearRecoveryPending,
+  hasRecoveryParamsFromLocation,
+  hasValidRecoveryFlag,
+  setRecoveryPending,
+} from '@/lib/authRecovery';
 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
@@ -20,42 +23,11 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const markRecoveryPending = () => {
-    sessionStorage.setItem(RECOVERY_FLAG_KEY, Date.now().toString());
-  };
-
-  const clearRecoveryPending = () => {
-    sessionStorage.removeItem(RECOVERY_FLAG_KEY);
-  };
-
-  const hasValidRecoveryFlag = () => {
-    const rawValue = sessionStorage.getItem(RECOVERY_FLAG_KEY);
-    if (!rawValue) return false;
-
-    const timestamp = Number(rawValue);
-    const isExpired = Number.isNaN(timestamp) || Date.now() - timestamp > RECOVERY_FLAG_TTL_MS;
-
-    if (isExpired) {
-      sessionStorage.removeItem(RECOVERY_FLAG_KEY);
-      return false;
-    }
-
-    return true;
-  };
-
   useEffect(() => {
-    // Check hash (implicit flow), query params (PKCE flow) and recovery marker
-    const hash = window.location.hash;
-    const params = new URLSearchParams(window.location.search);
-    const hasRecoveryParams =
-      hash.includes('type=recovery') ||
-      hash.includes('access_token=') ||
-      hash.includes('token_hash=') ||
-      params.get('type') === 'recovery' ||
-      params.has('code');
+    const hasRecoveryParams = hasRecoveryParamsFromLocation();
 
     if (hasRecoveryParams) {
-      markRecoveryPending();
+      setRecoveryPending();
       setIsRecovery(true);
     }
 
@@ -63,14 +35,14 @@ const ResetPassword = () => {
       setIsRecovery(true);
     }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
-        markRecoveryPending();
+        setRecoveryPending();
         setIsRecovery(true);
         return;
       }
 
-      if (event === 'SIGNED_IN' && (hasRecoveryParams || hasValidRecoveryFlag())) {
+      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && (hasRecoveryParamsFromLocation() || hasValidRecoveryFlag())) {
         setIsRecovery(true);
       }
     });

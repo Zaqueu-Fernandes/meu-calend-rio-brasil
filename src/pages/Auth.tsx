@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
-import { Calendar, LogIn, UserPlus } from 'lucide-react';
+import { Calendar } from 'lucide-react';
+import { buildResetPasswordRedirectUrl, setRecoveryPending } from '@/lib/authRecovery';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -96,12 +97,10 @@ const Auth = () => {
 
     setLoading(true);
     try {
-      const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
-      const resetUrl = new URL(`${basePath}/reset-password`, window.location.origin);
-      resetUrl.searchParams.set('type', 'recovery');
+      setRecoveryPending();
 
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: resetUrl.toString(),
+        redirectTo: buildResetPasswordRedirectUrl(),
       });
 
       if (error) throw error;
@@ -192,10 +191,10 @@ const Auth = () => {
             <div className="mt-4 text-center">
               <button
                 type="button"
-                onClick={isLogin ? handleForgotPassword : () => setIsLogin(true)}
+                onClick={handleForgotPassword}
                 className="text-sm text-muted-foreground hover:text-primary hover:underline"
               >
-                {isLogin ? 'Esqueci minha senha' : 'Esqueci minha senha (voltar para login)'}
+                Esqueci minha senha
               </button>
             </div>
             <div className="mt-4 text-center">
