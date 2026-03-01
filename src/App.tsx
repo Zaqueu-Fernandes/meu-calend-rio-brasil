@@ -5,6 +5,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  getRuntimeBasePath,
+  hasRecoveryParamsFromLocation,
+  hasValidRecoveryFlag,
+  setRecoveryPending,
+} from "@/lib/authRecovery";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -12,48 +18,14 @@ import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
-const basename = import.meta.env.BASE_URL.replace(/\/$/, "");
+const configuredBase = import.meta.env.BASE_URL.replace(/\/$/, "");
+const basename = getRuntimeBasePath(configuredBase);
 
 // MeuCalendario App
-
-const RECOVERY_FLAG_KEY = "auth_recovery_pending_at";
-const RECOVERY_FLAG_TTL_MS = 30 * 60 * 1000;
 
 const RecoveryRedirectHandler = () => {
   const location = useLocation();
   const navigate = useNavigate();
-
-  const markRecoveryPending = () => {
-    sessionStorage.setItem(RECOVERY_FLAG_KEY, Date.now().toString());
-  };
-
-  const hasValidRecoveryFlag = () => {
-    const rawValue = sessionStorage.getItem(RECOVERY_FLAG_KEY);
-    if (!rawValue) return false;
-
-    const timestamp = Number(rawValue);
-    const isExpired = Number.isNaN(timestamp) || Date.now() - timestamp > RECOVERY_FLAG_TTL_MS;
-
-    if (isExpired) {
-      sessionStorage.removeItem(RECOVERY_FLAG_KEY);
-      return false;
-    }
-
-    return true;
-  };
-
-  const hasRecoveryParams = () => {
-    const hash = window.location.hash;
-    const params = new URLSearchParams(window.location.search);
-
-    return (
-      hash.includes("type=recovery") ||
-      hash.includes("access_token=") ||
-      hash.includes("token_hash=") ||
-      params.get("type") === "recovery" ||
-      params.has("code")
-    );
-  };
 
   const redirectToResetPassword = () => {
     if (location.pathname === "/reset-password") return;
@@ -69,24 +41,29 @@ const RecoveryRedirectHandler = () => {
   };
 
   useEffect(() => {
-    if (hasRecoveryParams()) {
-      markRecoveryPending();
+    if (hasRecoveryParamsFromLocation()) {
+      setRecoveryPending();
     }
 
-    if (location.pathname === "/" && (hasRecoveryParams() || hasValidRecoveryFlag())) {
+    if (location.pathname === "/" && (hasRecoveryParamsFromLocation() || hasValidRecoveryFlag())) {
       redirectToResetPassword();
     }
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY") {
-        markRecoveryPending();
+        setRecoveryPending();
         redirectToResetPassword();
         return;
       }
 
-      if (event === "SIGNED_IN" && location.pathname === "/" && (hasRecoveryParams() || hasValidRecoveryFlag())) {
+      if (
+        (event === "SIGNED_IN" || event === "INITIAL_SESSION") &&
+        session &&
+        location.pathname === "/" &&
+        (hasRecoveryParamsFromLocation() || hasValidRecoveryFlag())
+      ) {
         redirectToResetPassword();
       }
     });
