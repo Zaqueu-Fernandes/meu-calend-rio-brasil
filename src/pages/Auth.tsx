@@ -86,7 +86,9 @@ const Auth = () => {
   };
 
   const handleForgotPassword = async () => {
-    if (!email) {
+    const normalizedEmail = email.trim();
+
+    if (!normalizedEmail) {
       toast({
         title: 'Informe seu e-mail',
         description: 'Digite seu e-mail acima para receber o link de recuperação.',
@@ -97,14 +99,15 @@ const Auth = () => {
 
     setLoading(true);
     try {
-      setRecoveryPending();
-
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
         redirectTo: buildResetPasswordRedirectUrl(),
       });
 
       if (error) throw error;
-      toast({ title: 'E-mail enviado!', description: 'Verifique sua caixa de entrada para redefinir sua senha.' });
+      toast({
+        title: 'Solicitação recebida',
+        description: 'Se este e-mail estiver cadastrado, você receberá o link de redefinição em instantes.',
+      });
     } catch (error: any) {
       toast({ title: 'Erro', description: error.message, variant: 'destructive' });
     } finally {
