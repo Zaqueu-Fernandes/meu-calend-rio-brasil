@@ -33,7 +33,9 @@ const Auth = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    const normalizedEmail = email.trim();
+
     if (!isLogin) {
       const numericPhone = phone.replace(/\D/g, '');
       // Validação do 9 após o DDD
@@ -51,24 +53,25 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
         if (error) throw error;
+        clearRecoveryPending();
         navigate('/');
       } else {
         const { error } = await supabase.auth.signUp({
-          email,
+          email: normalizedEmail,
           password,
           options: {
-            data: { 
+            data: {
               nome: displayName,
-              telefone: phone 
+              telefone: phone
             },
             emailRedirectTo: window.location.origin,
           },
         });
-        
+
         if (error) throw error;
-        
+
         toast({
           title: 'Sucesso!',
           description: 'Verifique seu e-mail para confirmar o cadastro.',
