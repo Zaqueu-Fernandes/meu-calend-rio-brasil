@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { Calendar } from 'lucide-react';
-import { buildResetPasswordRedirectUrl, setRecoveryPending } from '@/lib/authRecovery';
+import { buildResetPasswordRedirectUrl, clearRecoveryPending } from '@/lib/authRecovery';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
