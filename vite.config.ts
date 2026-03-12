@@ -4,8 +4,10 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
 
+const isGitHubPages = !!process.env.GITHUB_PAGES;
+
 export default defineConfig(({ mode }) => ({
-  base: '/meu-calend-rio-brasil/',
+  base: isGitHubPages ? '/meu-calend-rio-brasil/' : '/',
   server: {
     host: "::",
     port: 8080,
