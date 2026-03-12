@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { Calendar } from 'lucide-react';
-import { buildResetPasswordRedirectUrl, setRecoveryPending } from '@/lib/authRecovery';
+import { buildResetPasswordRedirectUrl, clearRecoveryPending } from '@/lib/authRecovery';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -33,7 +33,9 @@ const Auth = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    const normalizedEmail = email.trim();
+
     if (!isLogin) {
       const numericPhone = phone.replace(/\D/g, '');
       // Validação do 9 após o DDD
@@ -51,24 +53,25 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
         if (error) throw error;
+        clearRecoveryPending();
         navigate('/');
       } else {
         const { error } = await supabase.auth.signUp({
-          email,
+          email: normalizedEmail,
           password,
           options: {
-            data: { 
+            data: {
               nome: displayName,
-              telefone: phone 
+              telefone: phone
             },
             emailRedirectTo: window.location.origin,
           },
         });
-        
+
         if (error) throw error;
-        
+
         toast({
           title: 'Sucesso!',
           description: 'Verifique seu e-mail para confirmar o cadastro.',
@@ -86,7 +89,9 @@ const Auth = () => {
   };
 
   const handleForgotPassword = async () => {
-    if (!email) {
+    const normalizedEmail = email.trim();
+
+    if (!normalizedEmail) {
       toast({
         title: 'Informe seu e-mail',
         description: 'Digite seu e-mail acima para receber o link de recuperação.',
@@ -97,14 +102,15 @@ const Auth = () => {
 
     setLoading(true);
     try {
-      setRecoveryPending();
-
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
         redirectTo: buildResetPasswordRedirectUrl(),
       });
 
       if (error) throw error;
-      toast({ title: 'E-mail enviado!', description: 'Verifique sua caixa de entrada para redefinir sua senha.' });
+      toast({
+        title: 'Solicitação recebida',
+        description: 'Se este e-mail estiver cadastrado, você receberá o link de redefinição em instantes.',
+      });
     } catch (error: any) {
       toast({ title: 'Erro', description: error.message, variant: 'destructive' });
     } finally {
