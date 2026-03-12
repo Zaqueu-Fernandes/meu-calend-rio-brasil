@@ -4,8 +4,11 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
 
+const isGitHubPages = !!process.env.GITHUB_PAGES;
+const basePath = isGitHubPages ? '/meu-calend-rio-brasil/' : '/';
+
 export default defineConfig(({ mode }) => ({
-  base: '/meu-calend-rio-brasil/',
+  base: basePath,
   server: {
     host: "::",
     port: 8080,
@@ -33,21 +36,21 @@ export default defineConfig(({ mode }) => ({
         background_color: "#fefdf8",
         display: "standalone",
         orientation: "portrait",
-        start_url: "/meu-calend-rio-brasil/",
-        scope: "/meu-calend-rio-brasil/",
+        start_url: basePath,
+        scope: basePath,
         icons: [
           {
-            src: "/meu-calend-rio-brasil/icon-192.png",
+            src: `${basePath}icon-192.png`,
             sizes: "192x192",
             type: "image/png",
           },
           {
-            src: "/meu-calend-rio-brasil/icon-512.png",
+            src: `${basePath}icon-512.png`,
             sizes: "512x512",
             type: "image/png",
           },
           {
-            src: "/meu-calend-rio-brasil/icon-512.png",
+            src: `${basePath}icon-512.png`,
             sizes: "512x512",
             type: "image/png",
             purpose: "maskable",
