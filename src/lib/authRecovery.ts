@@ -93,6 +93,5 @@ export const buildResetPasswordRedirectUrl = () => {
   const basePath = getRuntimeBasePath();
   const resetPath = `${basePath}/reset-password`.replace(/\/+/g, "/");
   const resetUrl = new URL(resetPath, window.location.origin);
-  resetUrl.searchParams.set("type", "recovery");
   return resetUrl.toString();
 };
