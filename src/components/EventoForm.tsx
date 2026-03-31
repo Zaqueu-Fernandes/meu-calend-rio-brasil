@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Paperclip, AlarmClock, X } from 'lucide-react';
+import { Evento } from '@/hooks/useEventos';
 
 const CORES = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4'];
 
@@ -11,36 +13,117 @@ interface EventoFormProps {
   open: boolean;
   onClose: () => void;
   dataSelecionada: Date;
-  onSalvar: (evento: { titulo: string; descricao?: string; data: string; horario?: string; cor: string }) => void;
+  onSalvar: (evento: { titulo: string; descricao?: string; data: string; horario?: string; cor: string; anexo_url?: string; alarme?: string }) => void;
+  onAtualizar?: (id: string, evento: Partial<Evento>) => void;
+  onUploadAnexo?: (file: File) => Promise<string | null>;
+  eventoParaEditar?: Evento | null;
 }
 
-const EventoForm = ({ open, onClose, dataSelecionada, onSalvar }: EventoFormProps) => {
+const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onUploadAnexo, eventoParaEditar }: EventoFormProps) => {
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [horario, setHorario] = useState('');
   const [cor, setCor] = useState(CORES[0]);
+  const [anexoFile, setAnexoFile] = useState<File | null>(null);
+  const [anexoUrl, setAnexoUrl] = useState<string | null>(null);
+  const [alarmeData, setAlarmeData] = useState('');
+  const [alarmeHora, setAlarmeHora] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const isEditing = !!eventoParaEditar;
+
+  useEffect(() => {
+    if (eventoParaEditar) {
+      setTitulo(eventoParaEditar.titulo);
+      setDescricao(eventoParaEditar.descricao || '');
+      setHorario(eventoParaEditar.horario || '');
+      setCor(eventoParaEditar.cor);
+      setAnexoUrl(eventoParaEditar.anexo_url);
+      if (eventoParaEditar.alarme) {
+        const d = new Date(eventoParaEditar.alarme);
+        setAlarmeData(d.toISOString().split('T')[0]);
+        setAlarmeHora(d.toTimeString().slice(0, 5));
+      }
+    } else {
+      setTitulo('');
+      setDescricao('');
+      setHorario('');
+      setCor(CORES[0]);
+      setAnexoFile(null);
+      setAnexoUrl(null);
+      setAlarmeData('');
+      setAlarmeHora('');
+    }
+  }, [eventoParaEditar, open]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSalvar({
-      titulo,
-      descricao: descricao || undefined,
-      data: dataSelecionada.toISOString().split('T')[0],
-      horario: horario || undefined,
-      cor,
-    });
+    setUploading(true);
+
+    let finalAnexoUrl = anexoUrl;
+    if (anexoFile && onUploadAnexo) {
+      finalAnexoUrl = await onUploadAnexo(anexoFile);
+    }
+
+    let alarme: string | undefined;
+    if (alarmeData && alarmeHora) {
+      alarme = new Date(`${alarmeData}T${alarmeHora}`).toISOString();
+    }
+
+    if (isEditing && onAtualizar && eventoParaEditar) {
+      onAtualizar(eventoParaEditar.id, {
+        titulo,
+        descricao: descricao || null,
+        horario: horario || null,
+        cor,
+        anexo_url: finalAnexoUrl,
+        alarme: alarme || null,
+      });
+    } else {
+      onSalvar({
+        titulo,
+        descricao: descricao || undefined,
+        data: dataSelecionada.toISOString().split('T')[0],
+        horario: horario || undefined,
+        cor,
+        anexo_url: finalAnexoUrl || undefined,
+        alarme,
+      });
+    }
+
+    setUploading(false);
+    resetForm();
+    onClose();
+  };
+
+  const resetForm = () => {
     setTitulo('');
     setDescricao('');
     setHorario('');
     setCor(CORES[0]);
-    onClose();
+    setAnexoFile(null);
+    setAnexoUrl(null);
+    setAlarmeData('');
+    setAlarmeHora('');
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        alert('Arquivo muito grande. Máximo 10MB.');
+        return;
+      }
+      setAnexoFile(file);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Novo Evento</DialogTitle>
+          <DialogTitle>{isEditing ? 'Editar Evento' : 'Novo Evento'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -72,6 +155,58 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar }: EventoFormProp
               onChange={(e) => setHorario(e.target.value)}
             />
           </div>
+
+          {/* Anexo */}
+          <div className="space-y-2">
+            <Label>Anexar Arquivo</Label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              onChange={handleFileSelect}
+              className="hidden"
+              accept="image/*,.pdf,.doc,.docx,.txt"
+            />
+            <div className="flex items-center gap-2">
+              <Button type="button" variant="outline" size="sm" className="gap-1" onClick={() => fileInputRef.current?.click()}>
+                <Paperclip className="w-4 h-4" /> Escolher arquivo
+              </Button>
+              {(anexoFile || anexoUrl) && (
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <span className="truncate max-w-[150px]">{anexoFile?.name || 'Arquivo anexado'}</span>
+                  <button type="button" onClick={() => { setAnexoFile(null); setAnexoUrl(null); }}>
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Alarme */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-1">
+              <AlarmClock className="w-4 h-4" /> Despertador
+            </Label>
+            <div className="flex gap-2">
+              <Input
+                type="date"
+                value={alarmeData}
+                onChange={(e) => setAlarmeData(e.target.value)}
+                className="flex-1"
+              />
+              <Input
+                type="time"
+                value={alarmeHora}
+                onChange={(e) => setAlarmeHora(e.target.value)}
+                className="flex-1"
+              />
+            </div>
+            {alarmeData && alarmeHora && (
+              <button type="button" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => { setAlarmeData(''); setAlarmeHora(''); }}>
+                Remover alarme
+              </button>
+            )}
+          </div>
+
           <div className="space-y-2">
             <Label>Cor</Label>
             <div className="flex gap-2">
@@ -92,7 +227,9 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar }: EventoFormProp
           </div>
           <div className="flex gap-2 justify-end">
             <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
-            <Button type="submit">Salvar</Button>
+            <Button type="submit" disabled={uploading}>
+              {uploading ? 'Enviando...' : isEditing ? 'Salvar Alterações' : 'Salvar'}
+            </Button>
           </div>
         </form>
       </DialogContent>

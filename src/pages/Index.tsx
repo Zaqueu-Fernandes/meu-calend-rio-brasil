@@ -76,11 +76,6 @@ const Index = () => {
           </div>
           <div className="flex items-center gap-2">
             <FeriadosList feriados={feriados} ano={anoAtual} />
-            <Link to="/install">
-              <Button variant="outline" size="sm" className="gap-1">
-                <Download className="w-4 h-4" /> <span className="hidden sm:inline">Instalar</span>
-              </Button>
-            </Link>
             <Button variant="ghost" size="sm" onClick={signOut} className="gap-1 text-muted-foreground">
               <LogOut className="w-4 h-4" /> <span className="hidden sm:inline">Sair</span>
             </Button>
