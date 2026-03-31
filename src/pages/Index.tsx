@@ -188,26 +188,18 @@ const Index = () => {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/10">
-              <div className="w-3 h-3 rounded-full bg-green-500" />
-              <span className="text-sm text-foreground">Autenticação protegida com criptografia</span>
-            </div>
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/10">
-              <div className="w-3 h-3 rounded-full bg-green-500" />
-              <span className="text-sm text-foreground">Dados isolados por usuário (RLS ativo)</span>
-            </div>
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/10">
-              <div className="w-3 h-3 rounded-full bg-green-500" />
-              <span className="text-sm text-foreground">Conexão HTTPS segura</span>
-            </div>
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/10">
-              <div className="w-3 h-3 rounded-full bg-green-500" />
-              <span className="text-sm text-foreground">Arquivos protegidos por política de acesso</span>
-            </div>
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/10">
-              <div className="w-3 h-3 rounded-full bg-green-500" />
-              <span className="text-sm text-foreground">Senhas nunca armazenadas em texto puro</span>
-            </div>
+            {[
+              'Autenticação protegida com criptografia',
+              'Dados isolados por usuário (RLS ativo)',
+              'Conexão HTTPS segura',
+              'Arquivos protegidos por política de acesso',
+              'Senhas nunca armazenadas em texto puro',
+            ].map((item) => (
+              <div key={item} className="flex items-center gap-3 p-3 rounded-lg bg-primary/10">
+                <div className="w-3 h-3 rounded-full bg-primary" />
+                <span className="text-sm text-foreground">{item}</span>
+              </div>
+            ))}
             <p className="text-xs text-muted-foreground text-center pt-2">
               Seu calendário está protegido com as melhores práticas de segurança.
             </p>
