@@ -16,6 +16,8 @@ export type Database = {
     Tables: {
       eventos: {
         Row: {
+          alarme: string | null
+          anexo_url: string | null
           cor: string
           created_at: string
           data: string
@@ -27,6 +29,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          alarme?: string | null
+          anexo_url?: string | null
           cor?: string
           created_at?: string
           data: string
@@ -38,6 +42,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          alarme?: string | null
+          anexo_url?: string | null
           cor?: string
           created_at?: string
           data?: string
