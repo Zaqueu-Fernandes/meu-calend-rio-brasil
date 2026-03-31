@@ -27,6 +27,7 @@ const Index = () => {
   const [securityOpen, setSecurityOpen] = useState(false);
 
   const { eventos, criarEvento, atualizarEvento, excluirEvento, uploadAnexo } = useEventos(mesAtual, anoAtual);
+  useAlarmes(eventos);
   const feriados = useMemo(() => getFeriadosBrasileiros(anoAtual), [anoAtual]);
 
   useEffect(() => {
