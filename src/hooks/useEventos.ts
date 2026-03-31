@@ -11,6 +11,8 @@ export interface Evento {
   data: string;
   horario: string | null;
   cor: string;
+  anexo_url: string | null;
+  alarme: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -48,7 +50,7 @@ export function useEventos(mesAtual: number, anoAtual: number) {
     carregarEventos();
   }, [carregarEventos]);
 
-  const criarEvento = async (evento: { titulo: string; descricao?: string; data: string; horario?: string; cor: string }) => {
+  const criarEvento = async (evento: { titulo: string; descricao?: string; data: string; horario?: string; cor: string; anexo_url?: string; alarme?: string }) => {
     if (!user) return;
     const { error } = await supabase.from('eventos').insert({
       ...evento,
@@ -82,10 +84,28 @@ export function useEventos(mesAtual: number, anoAtual: number) {
     }
   };
 
+  const uploadAnexo = async (file: File): Promise<string | null> => {
+    if (!user) return null;
+    const filePath = `${user.id}/${Date.now()}_${file.name}`;
+    const { error } = await supabase.storage.from('event-attachments').upload(filePath, file);
+    if (error) {
+      toast({ title: 'Erro ao enviar arquivo', description: error.message, variant: 'destructive' });
+      return null;
+    }
+    const { data } = supabase.storage.from('event-attachments').getPublicUrl(filePath);
+    return data.publicUrl;
+  };
+
+  const getSignedUrl = async (filePath: string): Promise<string | null> => {
+    const { data, error } = await supabase.storage.from('event-attachments').createSignedUrl(filePath, 3600);
+    if (error) return null;
+    return data.signedUrl;
+  };
+
   const getEventosDoDia = (data: Date): Evento[] => {
     const dataStr = data.toISOString().split('T')[0];
     return eventos.filter(e => e.data === dataStr);
   };
 
-  return { eventos, loading, criarEvento, atualizarEvento, excluirEvento, getEventosDoDia };
+  return { eventos, loading, criarEvento, atualizarEvento, excluirEvento, uploadAnexo, getSignedUrl, getEventosDoDia };
 }

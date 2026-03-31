@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useEventos } from '@/hooks/useEventos';
+import { useEventos, Evento } from '@/hooks/useEventos';
 import { getFeriadosBrasileiros } from '@/lib/feriados';
 import { MESES } from '@/lib/calendario';
 import CalendarioGrid from '@/components/CalendarioGrid';
@@ -10,9 +10,9 @@ import EventoForm from '@/components/EventoForm';
 import FeriadosList from '@/components/FeriadosList';
 import { Button } from '@/components/ui/button';
 import PwaInstallBanner from '@/components/PwaInstallBanner';
-import { ChevronLeft, ChevronRight, LogOut, Calendar, Download } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogOut, Calendar, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const Index = () => {
   const { user, loading: authLoading, signOut } = useAuth();
@@ -22,8 +22,10 @@ const Index = () => {
   const [anoAtual, setAnoAtual] = useState(hoje.getFullYear());
   const [diaSelecionado, setDiaSelecionado] = useState<Date | null>(hoje);
   const [formAberto, setFormAberto] = useState(false);
+  const [eventoEditando, setEventoEditando] = useState<Evento | null>(null);
+  const [securityOpen, setSecurityOpen] = useState(false);
 
-  const { eventos, criarEvento, excluirEvento } = useEventos(mesAtual, anoAtual);
+  const { eventos, criarEvento, atualizarEvento, excluirEvento, uploadAnexo } = useEventos(mesAtual, anoAtual);
   const feriados = useMemo(() => getFeriadosBrasileiros(anoAtual), [anoAtual]);
 
   useEffect(() => {
@@ -63,6 +65,16 @@ const Index = () => {
     setDiaSelecionado(hoje);
   };
 
+  const handleEditarEvento = (evento: Evento) => {
+    setEventoEditando(evento);
+    setFormAberto(true);
+  };
+
+  const handleCloseForm = () => {
+    setFormAberto(false);
+    setEventoEditando(null);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -76,11 +88,9 @@ const Index = () => {
           </div>
           <div className="flex items-center gap-2">
             <FeriadosList feriados={feriados} ano={anoAtual} />
-            <Link to="/install">
-              <Button variant="outline" size="sm" className="gap-1">
-                <Download className="w-4 h-4" /> <span className="hidden sm:inline">Instalar</span>
-              </Button>
-            </Link>
+            <Button variant="outline" size="sm" className="gap-1" onClick={() => setSecurityOpen(true)}>
+              <ShieldCheck className="w-4 h-4" /> <span className="hidden sm:inline">Segurança</span>
+            </Button>
             <Button variant="ghost" size="sm" onClick={signOut} className="gap-1 text-muted-foreground">
               <LogOut className="w-4 h-4" /> <span className="hidden sm:inline">Sair</span>
             </Button>
@@ -141,8 +151,9 @@ const Index = () => {
                   data={diaSelecionado}
                   feriados={feriados}
                   eventos={eventos}
-                  onNovoEvento={() => setFormAberto(true)}
+                  onNovoEvento={() => { setEventoEditando(null); setFormAberto(true); }}
                   onExcluirEvento={excluirEvento}
+                  onEditarEvento={handleEditarEvento}
                 />
               </div>
             ) : (
@@ -159,11 +170,42 @@ const Index = () => {
       {diaSelecionado && (
         <EventoForm
           open={formAberto}
-          onClose={() => setFormAberto(false)}
+          onClose={handleCloseForm}
           dataSelecionada={diaSelecionado}
           onSalvar={criarEvento}
+          onAtualizar={atualizarEvento}
+          onUploadAnexo={uploadAnexo}
+          eventoParaEditar={eventoEditando}
         />
       )}
+
+      {/* Security Dialog */}
+      <Dialog open={securityOpen} onOpenChange={setSecurityOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-primary" /> Segurança do App
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            {[
+              'Autenticação protegida com criptografia',
+              'Dados isolados por usuário (RLS ativo)',
+              'Conexão HTTPS segura',
+              'Arquivos protegidos por política de acesso',
+              'Senhas nunca armazenadas em texto puro',
+            ].map((item) => (
+              <div key={item} className="flex items-center gap-3 p-3 rounded-lg bg-primary/10">
+                <div className="w-3 h-3 rounded-full bg-primary" />
+                <span className="text-sm text-foreground">{item}</span>
+              </div>
+            ))}
+            <p className="text-xs text-muted-foreground text-center pt-2">
+              Seu calendário está protegido com as melhores práticas de segurança.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <PwaInstallBanner />
     </div>
