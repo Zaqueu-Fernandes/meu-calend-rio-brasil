@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useEventos, Evento } from '@/hooks/useEventos';
+import { useAlarmes } from '@/hooks/useAlarmes';
 import { getFeriadosBrasileiros } from '@/lib/feriados';
 import { MESES } from '@/lib/calendario';
 import CalendarioGrid from '@/components/CalendarioGrid';
