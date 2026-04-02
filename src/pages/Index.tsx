@@ -34,6 +34,7 @@ const Index = () => {
   const { eventos, criarEvento, atualizarEvento, excluirEvento, uploadAnexo } = useEventos(mesAtual, anoAtual);
   const { categorias, criarCategoria, atualizarCategoria, excluirCategoria } = useCategorias();
   const { alarmesAtivos, dismissAlarme, dismissAll } = useAlarmes(eventos);
+  usePushSubscription();
   const feriados = useMemo(() => getFeriadosBrasileiros(anoAtual), [anoAtual]);
 
   useEffect(() => {
