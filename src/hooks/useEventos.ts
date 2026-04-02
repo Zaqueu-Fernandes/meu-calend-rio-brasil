@@ -51,7 +51,7 @@ export function useEventos(mesAtual: number, anoAtual: number) {
     carregarEventos();
   }, [carregarEventos]);
 
-  const criarEvento = async (evento: { titulo: string; descricao?: string; data: string; horario?: string; cor: string; anexo_url?: string; alarme?: string }) => {
+  const criarEvento = async (evento: { titulo: string; descricao?: string; data: string; horario?: string; cor: string; anexo_url?: string; alarme?: string; categoria_id?: string }) => {
     if (!user) return;
     const { error } = await supabase.from('eventos').insert({
       ...evento,
