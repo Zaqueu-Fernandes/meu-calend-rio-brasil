@@ -63,6 +63,11 @@ const EventoCard = ({ evento, categorias = [], onEditar, onExcluir, onDuplicar }
             <Button variant="ghost" size="icon" onClick={() => setShowChecklist(!showChecklist)} className={`h-8 w-8 ${showChecklist ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>
               <CheckSquare className="w-4 h-4" />
             </Button>
+            {onDuplicar && (
+              <Button variant="ghost" size="icon" onClick={onDuplicar} className="text-muted-foreground hover:text-primary h-8 w-8" title="Duplicar evento">
+                <Copy className="w-4 h-4" />
+              </Button>
+            )}
             <Button variant="ghost" size="icon" onClick={onEditar} className="text-muted-foreground hover:text-primary h-8 w-8">
               <Pencil className="w-4 h-4" />
             </Button>
