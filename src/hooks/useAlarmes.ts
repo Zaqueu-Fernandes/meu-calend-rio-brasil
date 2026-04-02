@@ -8,6 +8,11 @@ const CHECK_INTERVAL_MS = 1000;
 const MAX_LATE_TRIGGER_MS = 60 * 1000;
 const BEEP_INTERVAL_MS = 1200;
 
+// Module-level variables to survive React re-renders
+let globalBeepInterval: ReturnType<typeof setInterval> | null = null;
+let globalAudioCtx: AudioContext | null = null;
+let globalIsRinging = false;
+
 function getDisparados(): Set<string> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -26,11 +31,53 @@ function limparAntigos(set: Set<string>, eventos: Evento[]): Set<string> {
   const idsAtivos = new Set(eventos.map(e => e.id));
   const novoSet = new Set<string>();
   set.forEach(id => {
-    if (idsAtivos.has(id)) {
-      novoSet.add(id);
-    }
+    if (idsAtivos.has(id)) novoSet.add(id);
   });
   return novoSet;
+}
+
+async function doBeep() {
+  try {
+    globalAudioCtx = await unlockAlarmAudio(globalAudioCtx);
+    const ctx = globalAudioCtx;
+    if (!ctx) return;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    const t = ctx.currentTime;
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(880, t);
+    osc.frequency.setValueAtTime(660, t + 0.15);
+    osc.frequency.setValueAtTime(880, t + 0.3);
+
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(0.3, t + 0.02);
+    gain.gain.setValueAtTime(0.3, t + 0.4);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+
+    osc.start(t);
+    osc.stop(t + 0.5);
+  } catch { /* silent */ }
+}
+
+function startGlobalRinging() {
+  if (globalIsRinging) return;
+  globalIsRinging = true;
+  void doBeep();
+  globalBeepInterval = setInterval(() => {
+    void doBeep();
+  }, BEEP_INTERVAL_MS);
+}
+
+function stopGlobalRinging() {
+  globalIsRinging = false;
+  if (globalBeepInterval) {
+    clearInterval(globalBeepInterval);
+    globalBeepInterval = null;
+  }
 }
 
 export interface AlarmeAtivo {
@@ -39,118 +86,22 @@ export interface AlarmeAtivo {
 
 export function useAlarmes(eventos: Evento[]) {
   const { toast } = useToast();
+  const toastRef = useRef(toast);
+  toastRef.current = toast;
+
   const disparadosRef = useRef<Set<string>>(getDisparados());
-  const audioRef = useRef<AudioContext | null>(null);
   const eventosRef = useRef<Evento[]>(eventos);
-  const beepIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [alarmesAtivos, setAlarmesAtivos] = useState<AlarmeAtivo[]>([]);
 
   useEffect(() => {
     eventosRef.current = eventos;
   }, [eventos]);
 
-  const prepareAlarmCapabilities = useCallback(async () => {
-    audioRef.current = await unlockAlarmAudio(audioRef.current);
-    await requestAlarmNotificationPermission();
-  }, []);
-
-  const playBeep = useCallback(async () => {
-    try {
-      audioRef.current = await unlockAlarmAudio(audioRef.current);
-      const ctx = audioRef.current;
-      if (!ctx) return;
-
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      const startAt = ctx.currentTime;
-      // Two-tone beep for urgency
-      osc.frequency.setValueAtTime(880, startAt);
-      osc.frequency.setValueAtTime(660, startAt + 0.15);
-      osc.frequency.setValueAtTime(880, startAt + 0.3);
-      osc.type = 'square';
-
-      gain.gain.cancelScheduledValues(startAt);
-      gain.gain.setValueAtTime(0.0001, startAt);
-      gain.gain.exponentialRampToValueAtTime(0.3, startAt + 0.02);
-      gain.gain.setValueAtTime(0.3, startAt + 0.4);
-      gain.gain.exponentialRampToValueAtTime(0.0001, startAt + 0.5);
-
-      osc.start(startAt);
-      osc.stop(startAt + 0.5);
-    } catch { /* silent fallback */ }
-  }, []);
-
-  const startContinuousAlarm = useCallback(() => {
-    // Stop any existing loop
-    if (beepIntervalRef.current) {
-      clearInterval(beepIntervalRef.current);
-    }
-    // Play immediately then repeat
-    void playBeep();
-    beepIntervalRef.current = setInterval(() => {
-      void playBeep();
-    }, BEEP_INTERVAL_MS);
-  }, [playBeep]);
-
-  const stopContinuousAlarm = useCallback(() => {
-    if (beepIntervalRef.current) {
-      clearInterval(beepIntervalRef.current);
-      beepIntervalRef.current = null;
-    }
-  }, []);
-
-  const dismissAlarme = useCallback((eventoId: string) => {
-    setAlarmesAtivos(prev => {
-      const next = prev.filter(a => a.evento.id !== eventoId);
-      if (next.length === 0) {
-        stopContinuousAlarm();
-      }
-      return next;
-    });
-  }, [stopContinuousAlarm]);
-
-  const dismissAll = useCallback(() => {
-    setAlarmesAtivos([]);
-    stopContinuousAlarm();
-  }, [stopContinuousAlarm]);
-
-  const dispararAlarme = useCallback((evento: Evento) => {
-    disparadosRef.current.add(evento.id);
-    salvarDisparados(disparadosRef.current);
-
-    // Add to active alarms and start continuous sound
-    setAlarmesAtivos(prev => {
-      const alreadyActive = prev.some(a => a.evento.id === evento.id);
-      if (alreadyActive) return prev;
-      return [...prev, { evento }];
-    });
-    startContinuousAlarm();
-
-    // Browser notification
-    if ('Notification' in window && Notification.permission === 'granted') {
-      try {
-        new Notification('⏰ Alarme: ' + evento.titulo, {
-          body: evento.descricao || `Evento às ${evento.horario || 'hoje'}`,
-          requireInteraction: true,
-        });
-      } catch { /* ignore */ }
-    }
-
-    toast({
-      title: '⏰ Alarme!',
-      description: evento.titulo,
-      duration: 10000,
-    });
-  }, [startContinuousAlarm, toast]);
-
-  // Prepare alarm capabilities on any user interaction
+  // Prepare audio on user interaction
   useEffect(() => {
-    const prepare = () => {
-      void prepareAlarmCapabilities();
+    const prepare = async () => {
+      globalAudioCtx = await unlockAlarmAudio(globalAudioCtx);
+      await requestAlarmNotificationPermission();
     };
     window.addEventListener('pointerdown', prepare, { passive: true });
     window.addEventListener('keydown', prepare);
@@ -160,9 +111,22 @@ export function useAlarmes(eventos: Evento[]) {
       window.removeEventListener('keydown', prepare);
       window.removeEventListener('touchstart', prepare);
     };
-  }, [prepareAlarmCapabilities]);
+  }, []);
 
-  // Clean up old dispatched alarms when eventos change
+  const dismissAlarme = useCallback((eventoId: string) => {
+    setAlarmesAtivos(prev => {
+      const next = prev.filter(a => a.evento.id !== eventoId);
+      if (next.length === 0) stopGlobalRinging();
+      return next;
+    });
+  }, []);
+
+  const dismissAll = useCallback(() => {
+    setAlarmesAtivos([]);
+    stopGlobalRinging();
+  }, []);
+
+  // Clean up old dispatched alarms
   useEffect(() => {
     if (eventos.length > 0) {
       const limpo = limparAntigos(disparadosRef.current, eventos);
@@ -171,13 +135,11 @@ export function useAlarmes(eventos: Evento[]) {
     }
   }, [eventos]);
 
-  // Main alarm checking effect
+  // Main alarm checking - stable effect with no changing deps
   useEffect(() => {
     const verificar = () => {
       const agora = new Date();
-      const eventosAtuais = eventosRef.current;
-
-      eventosAtuais.forEach((evento) => {
+      eventosRef.current.forEach((evento) => {
         if (!evento.alarme) return;
         if (disparadosRef.current.has(evento.id)) return;
 
@@ -187,7 +149,32 @@ export function useAlarmes(eventos: Evento[]) {
         const diff = agora.getTime() - alarmeDate.getTime();
 
         if (diff >= 0 && diff <= MAX_LATE_TRIGGER_MS) {
-          dispararAlarme(evento);
+          // Fire alarm
+          disparadosRef.current.add(evento.id);
+          salvarDisparados(disparadosRef.current);
+
+          setAlarmesAtivos(prev => {
+            if (prev.some(a => a.evento.id === evento.id)) return prev;
+            return [...prev, { evento }];
+          });
+
+          startGlobalRinging();
+
+          // Browser notification
+          if ('Notification' in window && Notification.permission === 'granted') {
+            try {
+              new Notification('⏰ Alarme: ' + evento.titulo, {
+                body: evento.descricao || `Evento às ${evento.horario || 'hoje'}`,
+                requireInteraction: true,
+              });
+            } catch { /* ignore */ }
+          }
+
+          toastRef.current({
+            title: '⏰ Alarme!',
+            description: evento.titulo,
+            duration: 10000,
+          });
         } else if (diff > MAX_LATE_TRIGGER_MS) {
           disparadosRef.current.add(evento.id);
           salvarDisparados(disparadosRef.current);
@@ -198,18 +185,18 @@ export function useAlarmes(eventos: Evento[]) {
     verificar();
     const interval = setInterval(verificar, CHECK_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, [dispararAlarme]);
+  }, []); // Stable - no deps that change
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      stopContinuousAlarm();
-      if (audioRef.current) {
-        try { audioRef.current.close(); } catch { /* ignore */ }
-        audioRef.current = null;
+      stopGlobalRinging();
+      if (globalAudioCtx) {
+        try { globalAudioCtx.close(); } catch { /* ignore */ }
+        globalAudioCtx = null;
       }
     };
-  }, [stopContinuousAlarm]);
+  }, []);
 
   return { alarmesAtivos, dismissAlarme, dismissAll };
 }
