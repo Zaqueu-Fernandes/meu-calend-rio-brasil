@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Paperclip, AlarmClock, X, Tag } from 'lucide-react';
 import { Evento } from '@/hooks/useEventos';
 import { Categoria } from '@/hooks/useCategorias';
+import { requestAlarmNotificationPermission, unlockAlarmAudio } from '@/lib/alarmCapabilities';
 
 const CORES = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4'];
 
@@ -69,6 +70,8 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
 
     let alarme: string | undefined;
     if (alarmeData && alarmeHora) {
+      await unlockAlarmAudio();
+      await requestAlarmNotificationPermission();
       alarme = new Date(`${alarmeData}T${alarmeHora}`).toISOString();
     }
 
