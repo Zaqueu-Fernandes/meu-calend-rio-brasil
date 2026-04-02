@@ -14,10 +14,73 @@ export type Database = {
   }
   public: {
     Tables: {
+      categorias: {
+        Row: {
+          cor: string
+          created_at: string
+          id: string
+          nome: string
+          user_id: string
+        }
+        Insert: {
+          cor?: string
+          created_at?: string
+          id?: string
+          nome: string
+          user_id: string
+        }
+        Update: {
+          cor?: string
+          created_at?: string
+          id?: string
+          nome?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      checklist_items: {
+        Row: {
+          concluido: boolean
+          created_at: string
+          evento_id: string
+          id: string
+          ordem: number
+          texto: string
+          user_id: string
+        }
+        Insert: {
+          concluido?: boolean
+          created_at?: string
+          evento_id: string
+          id?: string
+          ordem?: number
+          texto: string
+          user_id: string
+        }
+        Update: {
+          concluido?: boolean
+          created_at?: string
+          evento_id?: string
+          id?: string
+          ordem?: number
+          texto?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_items_evento_id_fkey"
+            columns: ["evento_id"]
+            isOneToOne: false
+            referencedRelation: "eventos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       eventos: {
         Row: {
           alarme: string | null
           anexo_url: string | null
+          categoria_id: string | null
           cor: string
           created_at: string
           data: string
@@ -31,6 +94,7 @@ export type Database = {
         Insert: {
           alarme?: string | null
           anexo_url?: string | null
+          categoria_id?: string | null
           cor?: string
           created_at?: string
           data: string
@@ -44,6 +108,7 @@ export type Database = {
         Update: {
           alarme?: string | null
           anexo_url?: string | null
+          categoria_id?: string | null
           cor?: string
           created_at?: string
           data?: string
@@ -54,7 +119,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "eventos_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
