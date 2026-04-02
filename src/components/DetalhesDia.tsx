@@ -7,7 +7,7 @@ import { Categoria } from '@/hooks/useCategorias';
 import { useChecklist } from '@/hooks/useChecklist';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Trash2, Clock, Moon, Flag, Pencil, Paperclip, AlarmClock, Tag, CheckSquare } from 'lucide-react';
+import { Plus, Trash2, Clock, Moon, Flag, Pencil, Paperclip, AlarmClock, Tag, CheckSquare, Copy } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ChecklistPanel from './ChecklistPanel';
 
@@ -19,9 +19,10 @@ interface DetalhesDiaProps {
   onNovoEvento: () => void;
   onExcluirEvento: (id: string) => void;
   onEditarEvento: (evento: Evento) => void;
+  onDuplicarEvento?: (evento: Evento) => void;
 }
 
-const EventoCard = ({ evento, categorias = [], onEditar, onExcluir }: { evento: Evento; categorias?: Categoria[]; onEditar: () => void; onExcluir: () => void }) => {
+const EventoCard = ({ evento, categorias = [], onEditar, onExcluir, onDuplicar }: { evento: Evento; categorias?: Categoria[]; onEditar: () => void; onExcluir: () => void; onDuplicar?: () => void }) => {
   const [showChecklist, setShowChecklist] = useState(false);
   const { items, loading, adicionarItem, toggleItem, removerItem } = useChecklist(showChecklist ? evento.id : null);
   const categoria = categorias.find(c => c.id === (evento as any).categoria_id);
@@ -62,6 +63,11 @@ const EventoCard = ({ evento, categorias = [], onEditar, onExcluir }: { evento: 
             <Button variant="ghost" size="icon" onClick={() => setShowChecklist(!showChecklist)} className={`h-8 w-8 ${showChecklist ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>
               <CheckSquare className="w-4 h-4" />
             </Button>
+            {onDuplicar && (
+              <Button variant="ghost" size="icon" onClick={onDuplicar} className="text-muted-foreground hover:text-primary h-8 w-8" title="Duplicar evento">
+                <Copy className="w-4 h-4" />
+              </Button>
+            )}
             <Button variant="ghost" size="icon" onClick={onEditar} className="text-muted-foreground hover:text-primary h-8 w-8">
               <Pencil className="w-4 h-4" />
             </Button>
@@ -80,7 +86,7 @@ const EventoCard = ({ evento, categorias = [], onEditar, onExcluir }: { evento: 
   );
 };
 
-const DetalhesDia = ({ data, feriados, eventos, categorias = [], onNovoEvento, onExcluirEvento, onEditarEvento }: DetalhesDiaProps) => {
+const DetalhesDia = ({ data, feriados, eventos, categorias = [], onNovoEvento, onExcluirEvento, onEditarEvento, onDuplicarEvento }: DetalhesDiaProps) => {
   const feriado = getFeriadoDoDia(data, feriados);
   const lua = getFaseLua(data);
   const dataStr = data.toISOString().split('T')[0];
@@ -138,6 +144,7 @@ const DetalhesDia = ({ data, feriados, eventos, categorias = [], onNovoEvento, o
                   categorias={categorias}
                   onEditar={() => onEditarEvento(evento)}
                   onExcluir={() => onExcluirEvento(evento.id)}
+                  onDuplicar={onDuplicarEvento ? () => onDuplicarEvento(evento) : undefined}
                 />
               ))}
             </div>
