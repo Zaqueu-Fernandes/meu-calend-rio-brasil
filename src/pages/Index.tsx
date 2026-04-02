@@ -157,6 +157,7 @@ const Index = () => {
                   onNovoEvento={() => { setEventoEditando(null); setFormAberto(true); }}
                   onExcluirEvento={excluirEvento}
                   onEditarEvento={handleEditarEvento}
+                  onDuplicarEvento={handleDuplicarEvento}
                 />
               </div>
             ) : (
