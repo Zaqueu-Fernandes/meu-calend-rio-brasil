@@ -13,6 +13,7 @@ export interface Evento {
   cor: string;
   anexo_url: string | null;
   alarme: string | null;
+  categoria_id: string | null;
   created_at: string;
   updated_at: string;
 }
