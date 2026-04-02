@@ -1,0 +1,1 @@
+CREATE POLICY "Users can update own attachments" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = 'event-attachments' AND (storage.foldername(name))[1] = auth.uid()::text) WITH CHECK (bucket_id = 'event-attachments' AND (storage.foldername(name))[1] = auth.uid()::text);
