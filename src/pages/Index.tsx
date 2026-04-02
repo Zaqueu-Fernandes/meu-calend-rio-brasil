@@ -13,6 +13,7 @@ import FeriadosList from '@/components/FeriadosList';
 import CategoriasManager from '@/components/CategoriasManager';
 import { Button } from '@/components/ui/button';
 import PwaInstallBanner from '@/components/PwaInstallBanner';
+import AlarmeOverlay from '@/components/AlarmeOverlay';
 import { ChevronLeft, ChevronRight, LogOut, Calendar, ShieldCheck, Tag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -31,7 +32,7 @@ const Index = () => {
 
   const { eventos, criarEvento, atualizarEvento, excluirEvento, uploadAnexo } = useEventos(mesAtual, anoAtual);
   const { categorias, criarCategoria, atualizarCategoria, excluirCategoria } = useCategorias();
-  useAlarmes(eventos);
+  const { alarmesAtivos, dismissAlarme, dismissAll } = useAlarmes(eventos);
   const feriados = useMemo(() => getFeriadosBrasileiros(anoAtual), [anoAtual]);
 
   useEffect(() => {
@@ -206,6 +207,7 @@ const Index = () => {
       </Dialog>
 
       <PwaInstallBanner />
+      <AlarmeOverlay alarmesAtivos={alarmesAtivos} onDismiss={dismissAlarme} onDismissAll={dismissAll} />
     </div>
   );
 };
