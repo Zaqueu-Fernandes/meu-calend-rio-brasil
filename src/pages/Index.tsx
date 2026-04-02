@@ -3,15 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useEventos, Evento } from '@/hooks/useEventos';
 import { useAlarmes } from '@/hooks/useAlarmes';
+import { useCategorias } from '@/hooks/useCategorias';
 import { getFeriadosBrasileiros } from '@/lib/feriados';
 import { MESES } from '@/lib/calendario';
 import CalendarioGrid from '@/components/CalendarioGrid';
 import DetalhesDia from '@/components/DetalhesDia';
 import EventoForm from '@/components/EventoForm';
 import FeriadosList from '@/components/FeriadosList';
+import CategoriasManager from '@/components/CategoriasManager';
 import { Button } from '@/components/ui/button';
 import PwaInstallBanner from '@/components/PwaInstallBanner';
-import { ChevronLeft, ChevronRight, LogOut, Calendar, ShieldCheck } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogOut, Calendar, ShieldCheck, Tag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
@@ -25,8 +27,10 @@ const Index = () => {
   const [formAberto, setFormAberto] = useState(false);
   const [eventoEditando, setEventoEditando] = useState<Evento | null>(null);
   const [securityOpen, setSecurityOpen] = useState(false);
+  const [categoriasOpen, setCategoriasOpen] = useState(false);
 
   const { eventos, criarEvento, atualizarEvento, excluirEvento, uploadAnexo } = useEventos(mesAtual, anoAtual);
+  const { categorias, criarCategoria, atualizarCategoria, excluirCategoria } = useCategorias();
   useAlarmes(eventos);
   const feriados = useMemo(() => getFeriadosBrasileiros(anoAtual), [anoAtual]);
 
@@ -90,6 +94,9 @@ const Index = () => {
           </div>
           <div className="flex items-center gap-2">
             <FeriadosList feriados={feriados} ano={anoAtual} />
+            <Button variant="outline" size="sm" className="gap-1" onClick={() => setCategoriasOpen(true)}>
+              <Tag className="w-4 h-4" /> <span className="hidden sm:inline">Categorias</span>
+            </Button>
             <Button variant="outline" size="sm" className="gap-1" onClick={() => setSecurityOpen(true)}>
               <ShieldCheck className="w-4 h-4" /> <span className="hidden sm:inline">Segurança</span>
             </Button>
@@ -104,44 +111,21 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Calendário */}
           <div className="lg:col-span-2">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-card rounded-2xl border-2 border-border p-4 shadow-sm"
-            >
-              {/* Navegação do mês */}
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-card rounded-2xl border-2 border-border p-4 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <Button variant="ghost" size="icon" onClick={mesAnterior}>
                   <ChevronLeft className="w-5 h-5" />
                 </Button>
                 <div className="text-center">
-                  <h2 className="text-2xl font-bold text-foreground">
-                    {MESES[mesAtual]}
-                  </h2>
+                  <h2 className="text-2xl font-bold text-foreground">{MESES[mesAtual]}</h2>
                   <p className="text-sm text-muted-foreground">{anoAtual}</p>
                 </div>
                 <Button variant="ghost" size="icon" onClick={mesSeguinte}>
                   <ChevronRight className="w-5 h-5" />
                 </Button>
               </div>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={irParaHoje}
-                className="mb-4 w-full"
-              >
-                Ir para Hoje
-              </Button>
-
-              <CalendarioGrid
-                ano={anoAtual}
-                mes={mesAtual}
-                feriados={feriados}
-                eventos={eventos}
-                diaSelecionado={diaSelecionado}
-                onSelectDia={setDiaSelecionado}
-              />
+              <Button variant="outline" size="sm" onClick={irParaHoje} className="mb-4 w-full">Ir para Hoje</Button>
+              <CalendarioGrid ano={anoAtual} mes={mesAtual} feriados={feriados} eventos={eventos} diaSelecionado={diaSelecionado} onSelectDia={setDiaSelecionado} />
             </motion.div>
           </div>
 
@@ -153,6 +137,7 @@ const Index = () => {
                   data={diaSelecionado}
                   feriados={feriados}
                   eventos={eventos}
+                  categorias={categorias}
                   onNovoEvento={() => { setEventoEditando(null); setFormAberto(true); }}
                   onExcluirEvento={excluirEvento}
                   onEditarEvento={handleEditarEvento}
@@ -178,8 +163,19 @@ const Index = () => {
           onAtualizar={atualizarEvento}
           onUploadAnexo={uploadAnexo}
           eventoParaEditar={eventoEditando}
+          categorias={categorias}
         />
       )}
+
+      {/* Categorias Manager */}
+      <CategoriasManager
+        open={categoriasOpen}
+        onClose={() => setCategoriasOpen(false)}
+        categorias={categorias}
+        onCriar={criarCategoria}
+        onAtualizar={atualizarCategoria}
+        onExcluir={excluirCategoria}
+      />
 
       {/* Security Dialog */}
       <Dialog open={securityOpen} onOpenChange={setSecurityOpen}>

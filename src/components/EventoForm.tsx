@@ -4,8 +4,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Paperclip, AlarmClock, X } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Paperclip, AlarmClock, X, Tag } from 'lucide-react';
 import { Evento } from '@/hooks/useEventos';
+import { Categoria } from '@/hooks/useCategorias';
 
 const CORES = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4'];
 
@@ -13,13 +15,14 @@ interface EventoFormProps {
   open: boolean;
   onClose: () => void;
   dataSelecionada: Date;
-  onSalvar: (evento: { titulo: string; descricao?: string; data: string; horario?: string; cor: string; anexo_url?: string; alarme?: string }) => void;
+  onSalvar: (evento: { titulo: string; descricao?: string; data: string; horario?: string; cor: string; anexo_url?: string; alarme?: string; categoria_id?: string }) => void;
   onAtualizar?: (id: string, evento: Partial<Evento>) => void;
   onUploadAnexo?: (file: File) => Promise<string | null>;
   eventoParaEditar?: Evento | null;
+  categorias?: Categoria[];
 }
 
-const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onUploadAnexo, eventoParaEditar }: EventoFormProps) => {
+const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onUploadAnexo, eventoParaEditar, categorias = [] }: EventoFormProps) => {
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [horario, setHorario] = useState('');
@@ -28,6 +31,7 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
   const [anexoUrl, setAnexoUrl] = useState<string | null>(null);
   const [alarmeData, setAlarmeData] = useState('');
   const [alarmeHora, setAlarmeHora] = useState('');
+  const [categoriaId, setCategoriaId] = useState<string>('none');
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -40,20 +44,17 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
       setHorario(eventoParaEditar.horario || '');
       setCor(eventoParaEditar.cor);
       setAnexoUrl(eventoParaEditar.anexo_url);
+      setCategoriaId((eventoParaEditar as any).categoria_id || 'none');
       if (eventoParaEditar.alarme) {
         const d = new Date(eventoParaEditar.alarme);
         setAlarmeData(d.toISOString().split('T')[0]);
         setAlarmeHora(d.toTimeString().slice(0, 5));
+      } else {
+        setAlarmeData('');
+        setAlarmeHora('');
       }
     } else {
-      setTitulo('');
-      setDescricao('');
-      setHorario('');
-      setCor(CORES[0]);
-      setAnexoFile(null);
-      setAnexoUrl(null);
-      setAlarmeData('');
-      setAlarmeHora('');
+      resetForm();
     }
   }, [eventoParaEditar, open]);
 
@@ -71,6 +72,8 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
       alarme = new Date(`${alarmeData}T${alarmeHora}`).toISOString();
     }
 
+    const catId = categoriaId === 'none' ? undefined : categoriaId;
+
     if (isEditing && onAtualizar && eventoParaEditar) {
       onAtualizar(eventoParaEditar.id, {
         titulo,
@@ -79,7 +82,8 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
         cor,
         anexo_url: finalAnexoUrl,
         alarme: alarme || null,
-      });
+        categoria_id: catId || null,
+      } as any);
     } else {
       onSalvar({
         titulo,
@@ -89,6 +93,7 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
         cor,
         anexo_url: finalAnexoUrl || undefined,
         alarme,
+        categoria_id: catId,
       });
     }
 
@@ -106,6 +111,7 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
     setAnexoUrl(null);
     setAlarmeData('');
     setAlarmeHora('');
+    setCategoriaId('none');
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -128,44 +134,44 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="titulo">Título</Label>
-            <Input
-              id="titulo"
-              value={titulo}
-              onChange={(e) => setTitulo(e.target.value)}
-              placeholder="Nome do evento"
-              required
-            />
+            <Input id="titulo" value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Nome do evento" required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="descricao">Descrição</Label>
-            <Textarea
-              id="descricao"
-              value={descricao}
-              onChange={(e) => setDescricao(e.target.value)}
-              placeholder="Detalhes (opcional)"
-              rows={2}
-            />
+            <Textarea id="descricao" value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Detalhes (opcional)" rows={2} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="horario">Horário</Label>
-            <Input
-              id="horario"
-              type="time"
-              value={horario}
-              onChange={(e) => setHorario(e.target.value)}
-            />
+            <Input id="horario" type="time" value={horario} onChange={(e) => setHorario(e.target.value)} />
           </div>
+
+          {/* Categoria */}
+          {categorias.length > 0 && (
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1"><Tag className="w-4 h-4" /> Categoria</Label>
+              <Select value={categoriaId} onValueChange={setCategoriaId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sem categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Sem categoria</SelectItem>
+                  {categorias.map(cat => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.cor }} />
+                        {cat.nome}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Anexo */}
           <div className="space-y-2">
             <Label>Anexar Arquivo</Label>
-            <input
-              ref={fileInputRef}
-              type="file"
-              onChange={handleFileSelect}
-              className="hidden"
-              accept="image/*,.pdf,.doc,.docx,.txt"
-            />
+            <input ref={fileInputRef} type="file" onChange={handleFileSelect} className="hidden" accept="image/*,.pdf,.doc,.docx,.txt" />
             <div className="flex items-center gap-2">
               <Button type="button" variant="outline" size="sm" className="gap-1" onClick={() => fileInputRef.current?.click()}>
                 <Paperclip className="w-4 h-4" /> Escolher arquivo
@@ -183,22 +189,10 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
 
           {/* Alarme */}
           <div className="space-y-2">
-            <Label className="flex items-center gap-1">
-              <AlarmClock className="w-4 h-4" /> Despertador
-            </Label>
+            <Label className="flex items-center gap-1"><AlarmClock className="w-4 h-4" /> Despertador</Label>
             <div className="flex gap-2">
-              <Input
-                type="date"
-                value={alarmeData}
-                onChange={(e) => setAlarmeData(e.target.value)}
-                className="flex-1"
-              />
-              <Input
-                type="time"
-                value={alarmeHora}
-                onChange={(e) => setAlarmeHora(e.target.value)}
-                className="flex-1"
-              />
+              <Input type="date" value={alarmeData} onChange={(e) => setAlarmeData(e.target.value)} className="flex-1" />
+              <Input type="time" value={alarmeHora} onChange={(e) => setAlarmeHora(e.target.value)} className="flex-1" />
             </div>
             {alarmeData && alarmeHora && (
               <button type="button" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => { setAlarmeData(''); setAlarmeHora(''); }}>
