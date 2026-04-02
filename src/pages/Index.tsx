@@ -207,6 +207,7 @@ const Index = () => {
       </Dialog>
 
       <PwaInstallBanner />
+      <AlarmeOverlay alarmesAtivos={alarmesAtivos} onDismiss={dismissAlarme} onDismissAll={dismissAll} />
     </div>
   );
 };
