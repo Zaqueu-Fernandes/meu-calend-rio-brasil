@@ -79,6 +79,19 @@ const Index = () => {
     setFormAberto(true);
   };
 
+  const handleDuplicarEvento = async (evento: Evento) => {
+    await criarEvento({
+      titulo: `${evento.titulo} (cópia)`,
+      descricao: evento.descricao || undefined,
+      data: evento.data,
+      horario: evento.horario || undefined,
+      cor: evento.cor,
+      anexo_url: evento.anexo_url || undefined,
+      alarme: evento.alarme || undefined,
+      categoria_id: evento.categoria_id || undefined,
+    });
+  };
+
   const handleCloseForm = () => {
     setFormAberto(false);
     setEventoEditando(null);
