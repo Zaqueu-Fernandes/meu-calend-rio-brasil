@@ -144,6 +144,7 @@ const DetalhesDia = ({ data, feriados, eventos, categorias = [], onNovoEvento, o
                   categorias={categorias}
                   onEditar={() => onEditarEvento(evento)}
                   onExcluir={() => onExcluirEvento(evento.id)}
+                  onDuplicar={onDuplicarEvento ? () => onDuplicarEvento(evento) : undefined}
                 />
               ))}
             </div>
