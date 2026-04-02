@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useEventos, Evento } from '@/hooks/useEventos';
 import { useAlarmes } from '@/hooks/useAlarmes';
+import { usePushSubscription } from '@/hooks/usePushSubscription';
 import { useCategorias } from '@/hooks/useCategorias';
 import { getFeriadosBrasileiros } from '@/lib/feriados';
 import { MESES } from '@/lib/calendario';
