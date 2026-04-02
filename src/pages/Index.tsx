@@ -11,6 +11,7 @@ import CalendarioGrid from '@/components/CalendarioGrid';
 import DetalhesDia from '@/components/DetalhesDia';
 import EventoForm from '@/components/EventoForm';
 import FeriadosList from '@/components/FeriadosList';
+import MeusEventos from '@/components/MeusEventos';
 import CategoriasManager from '@/components/CategoriasManager';
 import { Button } from '@/components/ui/button';
 import PwaInstallBanner from '@/components/PwaInstallBanner';
@@ -110,6 +111,7 @@ const Index = () => {
           </div>
           <div className="flex items-center gap-2">
             <FeriadosList feriados={feriados} ano={anoAtual} />
+            <MeusEventos categorias={categorias} />
             <Button variant="outline" size="sm" className="gap-1" onClick={() => setCategoriasOpen(true)}>
               <Tag className="w-4 h-4" /> <span className="hidden sm:inline">Categorias</span>
             </Button>
