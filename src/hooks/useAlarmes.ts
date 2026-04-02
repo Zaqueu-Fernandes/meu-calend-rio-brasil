@@ -18,16 +18,35 @@ function salvarDisparados(set: Set<string>) {
   } catch { /* ignore */ }
 }
 
+// Clean old entries (older than 7 days) to prevent localStorage bloat
+function limparAntigos(set: Set<string>, eventos: Evento[]): Set<string> {
+  const idsAtivos = new Set(eventos.map(e => e.id));
+  const novoSet = new Set<string>();
+  set.forEach(id => {
+    if (idsAtivos.has(id)) {
+      novoSet.add(id);
+    }
+  });
+  return novoSet;
+}
+
 export function useAlarmes(eventos: Evento[]) {
   const { toast } = useToast();
   const disparadosRef = useRef<Set<string>>(getDisparados());
   const audioRef = useRef<AudioContext | null>(null);
+  const eventosRef = useRef<Evento[]>(eventos);
+
+  // Keep eventosRef in sync
+  useEffect(() => {
+    eventosRef.current = eventos;
+  }, [eventos]);
 
   const playSound = useCallback(() => {
     try {
       // Close any previous context to avoid stacking
       if (audioRef.current) {
-        audioRef.current.close().catch(() => {});
+        try { audioRef.current.close(); } catch { /* ignore */ }
+        audioRef.current = null;
       }
       const ctx = new AudioContext();
       audioRef.current = ctx;
@@ -41,56 +60,87 @@ export function useAlarmes(eventos: Evento[]) {
       osc.start();
       osc.stop(ctx.currentTime + 0.5);
       osc.onended = () => {
-        ctx.close().catch(() => {});
-        audioRef.current = null;
+        try { ctx.close(); } catch { /* ignore */ }
+        if (audioRef.current === ctx) {
+          audioRef.current = null;
+        }
       };
     } catch { /* silent fallback */ }
   }, []);
 
-  useEffect(() => {
-    if (eventos.length === 0) return;
+  const dispararAlarme = useCallback((evento: Evento) => {
+    disparadosRef.current.add(evento.id);
+    salvarDisparados(disparadosRef.current);
 
+    // Play sound
+    playSound();
+
+    // Browser notification
+    if ('Notification' in window && Notification.permission === 'granted') {
+      try {
+        new Notification('⏰ Alarme: ' + evento.titulo, {
+          body: evento.descricao || `Evento às ${evento.horario || 'hoje'}`,
+        });
+      } catch { /* ignore */ }
+    }
+
+    // Toast notification
+    toast({
+      title: '⏰ Alarme!',
+      description: evento.titulo,
+      duration: 10000,
+    });
+  }, [playSound, toast]);
+
+  // Request notification permission on mount
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  // Clean up old dispatched alarms when eventos change
+  useEffect(() => {
+    if (eventos.length > 0) {
+      const limpo = limparAntigos(disparadosRef.current, eventos);
+      disparadosRef.current = limpo;
+      salvarDisparados(limpo);
+    }
+  }, [eventos]);
+
+  // Main alarm checking effect
+  useEffect(() => {
     const verificar = () => {
       const agora = new Date();
-      eventos.forEach((evento) => {
+      const eventosAtuais = eventosRef.current;
+      
+      eventosAtuais.forEach((evento) => {
         if (!evento.alarme) return;
         if (disparadosRef.current.has(evento.id)) return;
 
         const alarmeDate = new Date(evento.alarme);
-        if (agora >= alarmeDate) {
-          disparadosRef.current.add(evento.id);
-          salvarDisparados(disparadosRef.current);
-
-          playSound();
-
-          if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification('⏰ Alarme: ' + evento.titulo, {
-              body: evento.descricao || `Evento às ${evento.horario || 'hoje'}`,
-            });
-          }
-
-          toast({
-            title: '⏰ Alarme!',
-            description: evento.titulo,
-          });
+        if (isNaN(alarmeDate.getTime())) return; // Invalid date guard
+        
+        if (agora.getTime() >= alarmeDate.getTime()) {
+          dispararAlarme(evento);
         }
       });
     };
 
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission();
-    }
-
+    // Check immediately
     verificar();
-    const interval = setInterval(verificar, 15000);
+    
+    // Then check every 5 seconds for more responsive alarms
+    const interval = setInterval(verificar, 5000);
     return () => clearInterval(interval);
-  }, [eventos, toast, playSound]);
+  }, [dispararAlarme]);
 
   // Cleanup audio on unmount
   useEffect(() => {
     return () => {
       if (audioRef.current) {
-        audioRef.current.close().catch(() => {});
+        try { audioRef.current.close(); } catch { /* ignore */ }
+        audioRef.current = null;
       }
     };
   }, []);
