@@ -7,7 +7,7 @@ import { Categoria } from '@/hooks/useCategorias';
 import { useChecklist } from '@/hooks/useChecklist';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Trash2, Clock, Moon, Flag, Pencil, Paperclip, AlarmClock, Tag, CheckSquare } from 'lucide-react';
+import { Plus, Trash2, Clock, Moon, Flag, Pencil, Paperclip, AlarmClock, Tag, CheckSquare, Copy } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ChecklistPanel from './ChecklistPanel';
 
