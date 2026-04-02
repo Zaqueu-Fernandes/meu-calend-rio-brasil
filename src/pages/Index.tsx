@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useEventos, Evento } from '@/hooks/useEventos';
 import { useAlarmes } from '@/hooks/useAlarmes';
+import { usePushSubscription } from '@/hooks/usePushSubscription';
 import { useCategorias } from '@/hooks/useCategorias';
 import { getFeriadosBrasileiros } from '@/lib/feriados';
 import { MESES } from '@/lib/calendario';
@@ -33,6 +34,7 @@ const Index = () => {
   const { eventos, criarEvento, atualizarEvento, excluirEvento, uploadAnexo } = useEventos(mesAtual, anoAtual);
   const { categorias, criarCategoria, atualizarCategoria, excluirCategoria } = useCategorias();
   const { alarmesAtivos, dismissAlarme, dismissAll } = useAlarmes(eventos);
+  usePushSubscription();
   const feriados = useMemo(() => getFeriadosBrasileiros(anoAtual), [anoAtual]);
 
   useEffect(() => {
