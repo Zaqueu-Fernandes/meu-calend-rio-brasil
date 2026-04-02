@@ -22,7 +22,7 @@ interface DetalhesDiaProps {
   onDuplicarEvento?: (evento: Evento) => void;
 }
 
-const EventoCard = ({ evento, categorias = [], onEditar, onExcluir }: { evento: Evento; categorias?: Categoria[]; onEditar: () => void; onExcluir: () => void }) => {
+const EventoCard = ({ evento, categorias = [], onEditar, onExcluir, onDuplicar }: { evento: Evento; categorias?: Categoria[]; onEditar: () => void; onExcluir: () => void; onDuplicar?: () => void }) => {
   const [showChecklist, setShowChecklist] = useState(false);
   const { items, loading, adicionarItem, toggleItem, removerItem } = useChecklist(showChecklist ? evento.id : null);
   const categoria = categorias.find(c => c.id === (evento as any).categoria_id);
