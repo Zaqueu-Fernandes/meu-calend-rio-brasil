@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Paperclip, AlarmClock, X, Tag } from 'lucide-react';
+import { Paperclip, AlarmClock, X, Tag, Plus } from 'lucide-react';
 import { Evento } from '@/hooks/useEventos';
 import { Categoria } from '@/hooks/useCategorias';
 import { requestAlarmNotificationPermission, unlockAlarmAudio } from '@/lib/alarmCapabilities';
@@ -21,9 +21,10 @@ interface EventoFormProps {
   onUploadAnexo?: (file: File) => Promise<string | null>;
   eventoParaEditar?: Evento | null;
   categorias?: Categoria[];
+  onAbrirCategorias?: () => void;
 }
 
-const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onUploadAnexo, eventoParaEditar, categorias = [] }: EventoFormProps) => {
+const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onUploadAnexo, eventoParaEditar, categorias = [], onAbrirCategorias }: EventoFormProps) => {
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [horario, setHorario] = useState('');
@@ -149,9 +150,9 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
           </div>
 
           {/* Categoria */}
-          {categorias.length > 0 && (
-            <div className="space-y-2">
-              <Label className="flex items-center gap-1"><Tag className="w-4 h-4" /> Categoria</Label>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-1"><Tag className="w-4 h-4" /> Categoria</Label>
+            {categorias.length > 0 ? (
               <Select value={categoriaId} onValueChange={setCategoriaId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sem categoria" />
@@ -168,8 +169,15 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-          )}
+            ) : (
+              <p className="text-sm text-muted-foreground">Nenhuma categoria cadastrada.</p>
+            )}
+            {onAbrirCategorias && (
+              <Button type="button" variant="outline" size="sm" className="gap-1 w-full" onClick={onAbrirCategorias}>
+                <Plus className="w-4 h-4" /> Nova Categoria
+              </Button>
+            )}
+          </div>
 
           {/* Anexo */}
           <div className="space-y-2">

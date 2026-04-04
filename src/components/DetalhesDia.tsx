@@ -7,7 +7,7 @@ import { Categoria } from '@/hooks/useCategorias';
 import { useChecklist } from '@/hooks/useChecklist';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Trash2, Clock, Moon, Flag, Pencil, Paperclip, AlarmClock, Tag, CheckSquare, Copy } from 'lucide-react';
+import { Plus, Trash2, Clock, Moon, Flag, Pencil, Paperclip, AlarmClock, Tag, CheckSquare, Copy, CalendarSearch } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ChecklistPanel from './ChecklistPanel';
 
@@ -20,6 +20,7 @@ interface DetalhesDiaProps {
   onExcluirEvento: (id: string) => void;
   onEditarEvento: (evento: Evento) => void;
   onDuplicarEvento?: (evento: Evento) => void;
+  onMeusEventos?: () => void;
 }
 
 const EventoCard = ({ evento, categorias = [], onEditar, onExcluir, onDuplicar }: { evento: Evento; categorias?: Categoria[]; onEditar: () => void; onExcluir: () => void; onDuplicar?: () => void }) => {
@@ -86,7 +87,7 @@ const EventoCard = ({ evento, categorias = [], onEditar, onExcluir, onDuplicar }
   );
 };
 
-const DetalhesDia = ({ data, feriados, eventos, categorias = [], onNovoEvento, onExcluirEvento, onEditarEvento, onDuplicarEvento }: DetalhesDiaProps) => {
+const DetalhesDia = ({ data, feriados, eventos, categorias = [], onNovoEvento, onExcluirEvento, onEditarEvento, onDuplicarEvento, onMeusEventos }: DetalhesDiaProps) => {
   const feriado = getFeriadoDoDia(data, feriados);
   const lua = getFaseLua(data);
   const dataStr = data.toISOString().split('T')[0];
@@ -148,6 +149,12 @@ const DetalhesDia = ({ data, feriados, eventos, categorias = [], onNovoEvento, o
                 />
               ))}
             </div>
+          )}
+
+          {onMeusEventos && (
+            <Button variant="outline" size="sm" className="w-full gap-1 mt-2" onClick={onMeusEventos}>
+              <CalendarSearch className="w-4 h-4" /> Eventos Registrados
+            </Button>
           )}
         </div>
       </motion.div>

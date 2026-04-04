@@ -114,51 +114,53 @@ const Index = () => {
       {/* Header */}
       <header className="sticky top-0 z-10 bg-card/80 backdrop-blur-md border-b border-border">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {/* Mobile hamburger menu - left side */}
-            <div className="flex sm:hidden">
-              <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Menu className="w-5 h-5" />
+          {/* Left: hamburger (mobile) */}
+          <div className="flex items-center sm:hidden">
+            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-11 w-11">
+                  <Menu className="w-7 h-7" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[280px]">
+                <SheetHeader>
+                  <SheetTitle className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-primary" /> ZakCalendario
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col gap-2 mt-6">
+                  <Button variant="outline" className="justify-start gap-3" onClick={() => { setMenuOpen(false); setFeriadosOpen(true); }}>
+                    <Flag className="w-4 h-4" /> Feriados {anoAtual}
                   </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-[280px]">
-                  <SheetHeader>
-                    <SheetTitle className="flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-primary" /> ZakCalendario
-                    </SheetTitle>
-                  </SheetHeader>
-                  <div className="flex flex-col gap-2 mt-6">
-                    <Button variant="outline" className="justify-start gap-3" onClick={() => { setMenuOpen(false); setFeriadosOpen(true); }}>
-                      <Flag className="w-4 h-4" /> Feriados {anoAtual}
-                    </Button>
-                    <Button variant="outline" className="justify-start gap-3" onClick={() => { setMenuOpen(false); setMeusEventosOpen(true); }}>
-                      <CalendarSearch className="w-4 h-4" /> Meus Eventos
-                    </Button>
-                    <Button variant="outline" className="justify-start gap-3" onClick={() => { setMenuOpen(false); setCategoriasOpen(true); }}>
-                      <Tag className="w-4 h-4" /> Categorias
-                    </Button>
-                    <Button variant="outline" className="justify-start gap-3" onClick={() => { setMenuOpen(false); setSecurityOpen(true); }}>
-                      <ShieldCheck className="w-4 h-4" /> Segurança
-                    </Button>
-                    <hr className="my-2 border-border" />
-                    <Button variant="ghost" className="justify-start gap-3 text-muted-foreground" onClick={() => { setMenuOpen(false); signOut(); }}>
-                      <LogOut className="w-4 h-4" /> Sair
-                    </Button>
-                  </div>
-                </SheetContent>
-              </Sheet>
-              {/* Hidden instances for dialogs */}
-              <FeriadosList feriados={feriados} ano={anoAtual} open={feriadosOpen} onOpenChange={setFeriadosOpen} hideTrigger />
-              <MeusEventos categorias={categorias} onAbrirEvento={handleAbrirEvento} open={meusEventosOpen} onOpenChange={setMeusEventosOpen} hideTrigger />
-            </div>
+                  <Button variant="outline" className="justify-start gap-3" onClick={() => { setMenuOpen(false); setMeusEventosOpen(true); }}>
+                    <CalendarSearch className="w-4 h-4" /> Meus Eventos
+                  </Button>
+                  <Button variant="outline" className="justify-start gap-3" onClick={() => { setMenuOpen(false); setCategoriasOpen(true); }}>
+                    <Tag className="w-4 h-4" /> Categorias
+                  </Button>
+                  <Button variant="outline" className="justify-start gap-3" onClick={() => { setMenuOpen(false); setSecurityOpen(true); }}>
+                    <ShieldCheck className="w-4 h-4" /> Segurança
+                  </Button>
+                  <hr className="my-2 border-border" />
+                  <Button variant="ghost" className="justify-start gap-3 text-muted-foreground" onClick={() => { setMenuOpen(false); signOut(); }}>
+                    <LogOut className="w-4 h-4" /> Sair
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
+            <FeriadosList feriados={feriados} ano={anoAtual} open={feriadosOpen} onOpenChange={setFeriadosOpen} hideTrigger />
+            <MeusEventos categorias={categorias} onAbrirEvento={handleAbrirEvento} open={meusEventosOpen} onOpenChange={setMeusEventosOpen} hideTrigger />
+          </div>
+
+          {/* Center: app icon + name */}
+          <div className="flex items-center gap-2 mx-auto sm:mx-0">
             <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
               <Calendar className="w-5 h-5 text-primary-foreground" />
             </div>
             <h1 className="text-xl font-bold text-foreground">ZakCalendario</h1>
           </div>
-          {/* Desktop buttons */}
+
+          {/* Right: desktop buttons */}
           <div className="hidden sm:flex items-center gap-2">
             <FeriadosList feriados={feriados} ano={anoAtual} open={feriadosOpen} onOpenChange={setFeriadosOpen} />
             <MeusEventos categorias={categorias} onAbrirEvento={handleAbrirEvento} open={meusEventosOpen} onOpenChange={setMeusEventosOpen} />
@@ -172,6 +174,9 @@ const Index = () => {
               <LogOut className="w-4 h-4" /> Sair
             </Button>
           </div>
+
+          {/* Spacer for mobile to balance hamburger */}
+          <div className="w-11 sm:hidden" />
         </div>
       </header>
 
@@ -210,6 +215,7 @@ const Index = () => {
                   onExcluirEvento={excluirEvento}
                   onEditarEvento={handleEditarEvento}
                   onDuplicarEvento={handleDuplicarEvento}
+                  onMeusEventos={() => setMeusEventosOpen(true)}
                 />
               </div>
             ) : (
@@ -233,6 +239,7 @@ const Index = () => {
           onUploadAnexo={uploadAnexo}
           eventoParaEditar={eventoEditando}
           categorias={categorias}
+          onAbrirCategorias={() => { setFormAberto(false); setCategoriasOpen(true); }}
         />
       )}
 
