@@ -241,6 +241,8 @@ const Index = () => {
           eventoParaEditar={eventoEditando}
           categorias={categorias}
           onAbrirCategorias={() => setCategoriasOpen(true)}
+          categoriaPendente={categoriaPendente}
+          onCategoriaPendenteConsumed={() => setCategoriaPendente(null)}
         />
       )}
 
@@ -252,6 +254,10 @@ const Index = () => {
         onCriar={criarCategoria}
         onAtualizar={atualizarCategoria}
         onExcluir={excluirCategoria}
+        onCategoriaCriada={(id) => {
+          setCategoriaPendente(id);
+          setCategoriasOpen(false);
+        }}
       />
 
       {/* Security Dialog */}
