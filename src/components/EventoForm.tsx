@@ -62,6 +62,13 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
     }
   }, [eventoParaEditar, open]);
 
+  useEffect(() => {
+    if (categoriaPendente && open) {
+      setCategoriaId(categoriaPendente);
+      onCategoriaPendenteConsumed?.();
+    }
+  }, [categoriaPendente, open]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setUploading(true);
