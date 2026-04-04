@@ -21,6 +21,7 @@ interface EventoFormProps {
   onUploadAnexo?: (file: File) => Promise<string | null>;
   eventoParaEditar?: Evento | null;
   categorias?: Categoria[];
+  onAbrirCategorias?: () => void;
 }
 
 const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onUploadAnexo, eventoParaEditar, categorias = [] }: EventoFormProps) => {
