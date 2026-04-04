@@ -15,11 +15,16 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 interface MeusEventosProps {
   categorias: Categoria[];
   onAbrirEvento?: (evento: Evento) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  hideTrigger?: boolean;
 }
 
-const MeusEventos = ({ categorias, onAbrirEvento }: MeusEventosProps) => {
+const MeusEventos = ({ categorias, onAbrirEvento, open: controlledOpen, onOpenChange, hideTrigger }: MeusEventosProps) => {
   const { user } = useAuth();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = onOpenChange || setInternalOpen;
   const [todos, setTodos] = useState<Evento[]>([]);
   const [loading, setLoading] = useState(false);
 
