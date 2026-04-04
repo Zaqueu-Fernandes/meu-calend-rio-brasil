@@ -173,7 +173,7 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
               <p className="text-sm text-muted-foreground">Nenhuma categoria cadastrada.</p>
             )}
             {onAbrirCategorias && (
-              <Button type="button" variant="outline" size="sm" className="gap-1 w-full" onClick={onAbrirCategorias}>
+              <Button type="button" size="sm" className="gap-1 w-full bg-primary text-primary-foreground hover:bg-primary/90" onClick={onAbrirCategorias}>
                 <Plus className="w-4 h-4" /> Nova Categoria
               </Button>
             )}
