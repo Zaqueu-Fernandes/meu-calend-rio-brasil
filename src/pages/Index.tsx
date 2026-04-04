@@ -36,6 +36,7 @@ const Index = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [feriadosOpen, setFeriadosOpen] = useState(false);
   const [meusEventosOpen, setMeusEventosOpen] = useState(false);
+  const [categoriaPendente, setCategoriaPendente] = useState<string | null>(null);
 
   const { eventos, criarEvento, atualizarEvento, excluirEvento, uploadAnexo } = useEventos(mesAtual, anoAtual);
   const { categorias, criarCategoria, atualizarCategoria, excluirCategoria } = useCategorias();
@@ -241,6 +242,8 @@ const Index = () => {
           eventoParaEditar={eventoEditando}
           categorias={categorias}
           onAbrirCategorias={() => setCategoriasOpen(true)}
+          categoriaPendente={categoriaPendente}
+          onCategoriaPendenteConsumed={() => setCategoriaPendente(null)}
         />
       )}
 
@@ -252,6 +255,10 @@ const Index = () => {
         onCriar={criarCategoria}
         onAtualizar={atualizarCategoria}
         onExcluir={excluirCategoria}
+        onCategoriaCriada={(id) => {
+          setCategoriaPendente(id);
+          setCategoriasOpen(false);
+        }}
       />
 
       {/* Security Dialog */}

@@ -36,14 +36,16 @@ export function useCategorias() {
     carregarCategorias();
   }, [carregarCategorias]);
 
-  const criarCategoria = async (nome: string, cor: string) => {
-    if (!user) return;
-    const { error } = await supabase.from('categorias').insert({ user_id: user.id, nome, cor });
+  const criarCategoria = async (nome: string, cor: string): Promise<string | null> => {
+    if (!user) return null;
+    const { data, error } = await supabase.from('categorias').insert({ user_id: user.id, nome, cor }).select('id').single();
     if (error) {
       toast({ title: 'Erro ao criar categoria', description: error.message, variant: 'destructive' });
+      return null;
     } else {
       toast({ title: 'Categoria criada!' });
-      carregarCategorias();
+      await carregarCategorias();
+      return data.id;
     }
   };
 

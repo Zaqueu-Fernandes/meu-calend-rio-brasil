@@ -22,9 +22,11 @@ interface EventoFormProps {
   eventoParaEditar?: Evento | null;
   categorias?: Categoria[];
   onAbrirCategorias?: () => void;
+  categoriaPendente?: string | null;
+  onCategoriaPendenteConsumed?: () => void;
 }
 
-const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onUploadAnexo, eventoParaEditar, categorias = [], onAbrirCategorias }: EventoFormProps) => {
+const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onUploadAnexo, eventoParaEditar, categorias = [], onAbrirCategorias, categoriaPendente, onCategoriaPendenteConsumed }: EventoFormProps) => {
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [horario, setHorario] = useState('');
@@ -59,6 +61,13 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
       resetForm();
     }
   }, [eventoParaEditar, open]);
+
+  useEffect(() => {
+    if (categoriaPendente && open) {
+      setCategoriaId(categoriaPendente);
+      onCategoriaPendenteConsumed?.();
+    }
+  }, [categoriaPendente, open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

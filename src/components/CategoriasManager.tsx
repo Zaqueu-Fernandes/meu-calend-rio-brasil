@@ -11,23 +11,27 @@ interface CategoriasManagerProps {
   open: boolean;
   onClose: () => void;
   categorias: Categoria[];
-  onCriar: (nome: string, cor: string) => void;
+  onCriar: (nome: string, cor: string) => Promise<string | null>;
   onAtualizar: (id: string, nome: string, cor: string) => void;
   onExcluir: (id: string) => void;
+  onCategoriaCriada?: (id: string) => void;
 }
 
-const CategoriasManager = ({ open, onClose, categorias, onCriar, onAtualizar, onExcluir }: CategoriasManagerProps) => {
+const CategoriasManager = ({ open, onClose, categorias, onCriar, onAtualizar, onExcluir, onCategoriaCriada }: CategoriasManagerProps) => {
   const [novoNome, setNovoNome] = useState('');
   const [novaCor, setNovaCor] = useState(CORES_CATEGORIA[0]);
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const [editNome, setEditNome] = useState('');
   const [editCor, setEditCor] = useState('');
 
-  const handleCriar = () => {
+  const handleCriar = async () => {
     if (!novoNome.trim()) return;
-    onCriar(novoNome.trim(), novaCor);
+    const newId = await onCriar(novoNome.trim(), novaCor);
     setNovoNome('');
     setNovaCor(CORES_CATEGORIA[0]);
+    if (newId && onCategoriaCriada) {
+      onCategoriaCriada(newId);
+    }
   };
 
   const handleEditar = (cat: Categoria) => {
