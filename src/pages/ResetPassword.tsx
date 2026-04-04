@@ -88,19 +88,22 @@ const ResetPassword = () => {
 
   if (!isRecovery) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md shadow-xl text-center">
-          <CardHeader>
-            <CardTitle>Link inválido</CardTitle>
-            <CardDescription>Este link de recuperação é inválido ou expirou.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={() => {
-              clearRecoveryPending();
-              navigate('/auth');
-            }} className="w-full">Voltar ao login</Button>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen flex flex-col bg-background">
+        <div className="flex-1 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md shadow-xl text-center">
+            <CardHeader>
+              <CardTitle>Link inválido</CardTitle>
+              <CardDescription>Este link de recuperação é inválido ou expirou.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={() => {
+                clearRecoveryPending();
+                navigate('/auth');
+              }} className="w-full">Voltar ao login</Button>
+            </CardContent>
+          </Card>
+        </div>
+        <Footer />
       </div>
     );
   }
