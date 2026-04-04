@@ -93,6 +93,13 @@ const Index = () => {
     });
   };
 
+  const handleAbrirEvento = (evento: Evento) => {
+    const [ano, mes] = evento.data.split('-').map(Number);
+    setAnoAtual(ano);
+    setMesAtual(mes - 1);
+    setDiaSelecionado(new Date(ano, mes - 1, Number(evento.data.split('-')[2])));
+  };
+
   const handleCloseForm = () => {
     setFormAberto(false);
     setEventoEditando(null);
