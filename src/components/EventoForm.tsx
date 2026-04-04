@@ -150,9 +150,9 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
           </div>
 
           {/* Categoria */}
-          {categorias.length > 0 && (
-            <div className="space-y-2">
-              <Label className="flex items-center gap-1"><Tag className="w-4 h-4" /> Categoria</Label>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-1"><Tag className="w-4 h-4" /> Categoria</Label>
+            {categorias.length > 0 ? (
               <Select value={categoriaId} onValueChange={setCategoriaId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sem categoria" />
@@ -169,8 +169,15 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-          )}
+            ) : (
+              <p className="text-sm text-muted-foreground">Nenhuma categoria cadastrada.</p>
+            )}
+            {onAbrirCategorias && (
+              <Button type="button" variant="outline" size="sm" className="gap-1 w-full" onClick={onAbrirCategorias}>
+                <Plus className="w-4 h-4" /> Nova Categoria
+              </Button>
+            )}
+          </div>
 
           {/* Anexo */}
           <div className="space-y-2">
