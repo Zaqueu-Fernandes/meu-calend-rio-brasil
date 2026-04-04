@@ -22,6 +22,8 @@ interface EventoFormProps {
   eventoParaEditar?: Evento | null;
   categorias?: Categoria[];
   onAbrirCategorias?: () => void;
+  categoriaPendente?: string | null;
+  onCategoriaPendenteConsumed?: () => void;
 }
 
 const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onUploadAnexo, eventoParaEditar, categorias = [], onAbrirCategorias }: EventoFormProps) => {
