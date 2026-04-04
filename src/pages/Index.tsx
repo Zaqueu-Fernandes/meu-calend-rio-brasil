@@ -32,6 +32,9 @@ const Index = () => {
   const [eventoEditando, setEventoEditando] = useState<Evento | null>(null);
   const [securityOpen, setSecurityOpen] = useState(false);
   const [categoriasOpen, setCategoriasOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [feriadosOpen, setFeriadosOpen] = useState(false);
+  const [meusEventosOpen, setMeusEventosOpen] = useState(false);
 
   const { eventos, criarEvento, atualizarEvento, excluirEvento, uploadAnexo } = useEventos(mesAtual, anoAtual);
   const { categorias, criarCategoria, atualizarCategoria, excluirCategoria } = useCategorias();
