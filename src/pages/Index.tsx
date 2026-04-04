@@ -16,9 +16,10 @@ import CategoriasManager from '@/components/CategoriasManager';
 import { Button } from '@/components/ui/button';
 import PwaInstallBanner from '@/components/PwaInstallBanner';
 import AlarmeOverlay from '@/components/AlarmeOverlay';
-import { ChevronLeft, ChevronRight, LogOut, Calendar, ShieldCheck, Tag } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogOut, Calendar, ShieldCheck, Tag, Menu, Flag, CalendarSearch } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
 const Index = () => {
   const { user, loading: authLoading, signOut } = useAuth();
