@@ -118,7 +118,7 @@ const Index = () => {
           </div>
           <div className="flex items-center gap-2">
             <FeriadosList feriados={feriados} ano={anoAtual} />
-            <MeusEventos categorias={categorias} />
+            <MeusEventos categorias={categorias} onAbrirEvento={handleAbrirEvento} />
             <Button variant="outline" size="sm" className="gap-1" onClick={() => setCategoriasOpen(true)}>
               <Tag className="w-4 h-4" /> <span className="hidden sm:inline">Categorias</span>
             </Button>
