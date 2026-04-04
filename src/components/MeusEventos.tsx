@@ -14,9 +14,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 interface MeusEventosProps {
   categorias: Categoria[];
+  onAbrirEvento?: (evento: Evento) => void;
 }
 
-const MeusEventos = ({ categorias }: MeusEventosProps) => {
+const MeusEventos = ({ categorias, onAbrirEvento }: MeusEventosProps) => {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [todos, setTodos] = useState<Evento[]>([]);
