@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { Calendar, Lock } from 'lucide-react';
+import Footer from '@/components/Footer';
 import {
   clearRecoveryPending,
   hasRecoveryParamsFromLocation,
