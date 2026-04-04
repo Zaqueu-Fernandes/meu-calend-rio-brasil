@@ -215,6 +215,7 @@ const Index = () => {
                   onExcluirEvento={excluirEvento}
                   onEditarEvento={handleEditarEvento}
                   onDuplicarEvento={handleDuplicarEvento}
+                  onMeusEventos={() => setMeusEventosOpen(true)}
                 />
               </div>
             ) : (
