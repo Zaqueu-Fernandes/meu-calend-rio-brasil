@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Download, Smartphone, Monitor, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import Footer from '@/components/Footer';
 
 const Install = () => {
   return (
