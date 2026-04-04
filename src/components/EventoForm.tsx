@@ -26,7 +26,7 @@ interface EventoFormProps {
   onCategoriaPendenteConsumed?: () => void;
 }
 
-const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onUploadAnexo, eventoParaEditar, categorias = [], onAbrirCategorias }: EventoFormProps) => {
+const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onUploadAnexo, eventoParaEditar, categorias = [], onAbrirCategorias, categoriaPendente, onCategoriaPendenteConsumed }: EventoFormProps) => {
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [horario, setHorario] = useState('');
