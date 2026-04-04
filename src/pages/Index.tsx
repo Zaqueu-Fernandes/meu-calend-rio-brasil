@@ -239,6 +239,7 @@ const Index = () => {
           onUploadAnexo={uploadAnexo}
           eventoParaEditar={eventoEditando}
           categorias={categorias}
+          onAbrirCategorias={() => { setFormAberto(false); setCategoriasOpen(true); }}
         />
       )}
 
