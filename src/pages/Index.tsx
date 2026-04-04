@@ -93,6 +93,13 @@ const Index = () => {
     });
   };
 
+  const handleAbrirEvento = (evento: Evento) => {
+    const [ano, mes] = evento.data.split('-').map(Number);
+    setAnoAtual(ano);
+    setMesAtual(mes - 1);
+    setDiaSelecionado(new Date(ano, mes - 1, Number(evento.data.split('-')[2])));
+  };
+
   const handleCloseForm = () => {
     setFormAberto(false);
     setEventoEditando(null);
@@ -111,7 +118,7 @@ const Index = () => {
           </div>
           <div className="flex items-center gap-2">
             <FeriadosList feriados={feriados} ano={anoAtual} />
-            <MeusEventos categorias={categorias} />
+            <MeusEventos categorias={categorias} onAbrirEvento={handleAbrirEvento} />
             <Button variant="outline" size="sm" className="gap-1" onClick={() => setCategoriasOpen(true)}>
               <Tag className="w-4 h-4" /> <span className="hidden sm:inline">Categorias</span>
             </Button>

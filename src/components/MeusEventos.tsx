@@ -8,14 +8,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
-import { CalendarSearch, Search, Calendar, Clock, Tag } from 'lucide-react';
+import { CalendarSearch, Search, Calendar, Clock, Tag, ExternalLink } from 'lucide-react';
 import { MESES } from '@/lib/calendario';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface MeusEventosProps {
   categorias: Categoria[];
+  onAbrirEvento?: (evento: Evento) => void;
 }
 
-const MeusEventos = ({ categorias }: MeusEventosProps) => {
+const MeusEventos = ({ categorias, onAbrirEvento }: MeusEventosProps) => {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [todos, setTodos] = useState<Evento[]>([]);
@@ -184,6 +186,26 @@ const MeusEventos = ({ categorias }: MeusEventosProps) => {
                             )}
                           </div>
                         </div>
+                        {onAbrirEvento && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="shrink-0 h-8 w-8 text-primary hover:text-primary/80"
+                                  onClick={() => {
+                                    onAbrirEvento(e);
+                                    setOpen(false);
+                                  }}
+                                >
+                                  <ExternalLink className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Abrir Evento</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
