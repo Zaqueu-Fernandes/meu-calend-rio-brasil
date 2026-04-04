@@ -87,7 +87,7 @@ const EventoCard = ({ evento, categorias = [], onEditar, onExcluir, onDuplicar }
   );
 };
 
-const DetalhesDia = ({ data, feriados, eventos, categorias = [], onNovoEvento, onExcluirEvento, onEditarEvento, onDuplicarEvento }: DetalhesDiaProps) => {
+const DetalhesDia = ({ data, feriados, eventos, categorias = [], onNovoEvento, onExcluirEvento, onEditarEvento, onDuplicarEvento, onMeusEventos }: DetalhesDiaProps) => {
   const feriado = getFeriadoDoDia(data, feriados);
   const lua = getFaseLua(data);
   const dataStr = data.toISOString().split('T')[0];
