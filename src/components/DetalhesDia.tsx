@@ -150,6 +150,12 @@ const DetalhesDia = ({ data, feriados, eventos, categorias = [], onNovoEvento, o
               ))}
             </div>
           )}
+
+          {onMeusEventos && (
+            <Button variant="outline" size="sm" className="w-full gap-1 mt-2" onClick={onMeusEventos}>
+              <CalendarSearch className="w-4 h-4" /> Eventos Registrados
+            </Button>
+          )}
         </div>
       </motion.div>
     </AnimatePresence>
