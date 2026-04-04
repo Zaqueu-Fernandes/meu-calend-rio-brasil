@@ -8,8 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
-import { CalendarSearch, Search, Calendar, Clock, Tag } from 'lucide-react';
+import { CalendarSearch, Search, Calendar, Clock, Tag, ExternalLink } from 'lucide-react';
 import { MESES } from '@/lib/calendario';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface MeusEventosProps {
   categorias: Categoria[];
