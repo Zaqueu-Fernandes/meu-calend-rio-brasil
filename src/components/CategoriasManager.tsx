@@ -11,9 +11,10 @@ interface CategoriasManagerProps {
   open: boolean;
   onClose: () => void;
   categorias: Categoria[];
-  onCriar: (nome: string, cor: string) => void;
+  onCriar: (nome: string, cor: string) => Promise<string | null>;
   onAtualizar: (id: string, nome: string, cor: string) => void;
   onExcluir: (id: string) => void;
+  onCategoriaCriada?: (id: string) => void;
 }
 
 const CategoriasManager = ({ open, onClose, categorias, onCriar, onAtualizar, onExcluir }: CategoriasManagerProps) => {
