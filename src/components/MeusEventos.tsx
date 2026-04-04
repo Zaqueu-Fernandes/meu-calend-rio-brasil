@@ -186,6 +186,26 @@ const MeusEventos = ({ categorias, onAbrirEvento }: MeusEventosProps) => {
                             )}
                           </div>
                         </div>
+                        {onAbrirEvento && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="shrink-0 h-8 w-8 text-primary hover:text-primary/80"
+                                  onClick={() => {
+                                    onAbrirEvento(e);
+                                    setOpen(false);
+                                  }}
+                                >
+                                  <ExternalLink className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Abrir Evento</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
