@@ -80,11 +80,13 @@ const MeusEventos = ({ categorias, onAbrirEvento, open: controlledOpen, onOpenCh
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1">
-          <CalendarSearch className="w-4 h-4" /> <span className="hidden sm:inline">Meus Eventos</span>
-        </Button>
-      </DialogTrigger>
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm" className="gap-1">
+            <CalendarSearch className="w-4 h-4" /> <span className="hidden sm:inline">Meus Eventos</span>
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
