@@ -20,6 +20,7 @@ interface DetalhesDiaProps {
   onExcluirEvento: (id: string) => void;
   onEditarEvento: (evento: Evento) => void;
   onDuplicarEvento?: (evento: Evento) => void;
+  onMeusEventos?: () => void;
 }
 
 const EventoCard = ({ evento, categorias = [], onEditar, onExcluir, onDuplicar }: { evento: Evento; categorias?: Categoria[]; onEditar: () => void; onExcluir: () => void; onDuplicar?: () => void }) => {
