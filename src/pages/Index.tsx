@@ -283,6 +283,7 @@ const Index = () => {
 
       <PwaInstallBanner />
       <AlarmeOverlay alarmesAtivos={alarmesAtivos} onDismiss={dismissAlarme} onDismissAll={dismissAll} />
+      <Footer />
     </div>
   );
 };
