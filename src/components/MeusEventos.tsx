@@ -15,11 +15,16 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 interface MeusEventosProps {
   categorias: Categoria[];
   onAbrirEvento?: (evento: Evento) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  hideTrigger?: boolean;
 }
 
-const MeusEventos = ({ categorias, onAbrirEvento }: MeusEventosProps) => {
+const MeusEventos = ({ categorias, onAbrirEvento, open: controlledOpen, onOpenChange, hideTrigger }: MeusEventosProps) => {
   const { user } = useAuth();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = onOpenChange || setInternalOpen;
   const [todos, setTodos] = useState<Evento[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -75,11 +80,13 @@ const MeusEventos = ({ categorias, onAbrirEvento }: MeusEventosProps) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1">
-          <CalendarSearch className="w-4 h-4" /> <span className="hidden sm:inline">Meus Eventos</span>
-        </Button>
-      </DialogTrigger>
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm" className="gap-1">
+            <CalendarSearch className="w-4 h-4" /> <span className="hidden sm:inline">Meus Eventos</span>
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">

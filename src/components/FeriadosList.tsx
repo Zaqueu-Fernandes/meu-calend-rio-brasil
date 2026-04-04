@@ -8,16 +8,21 @@ import { MESES } from '@/lib/calendario';
 interface FeriadosListProps {
   feriados: Feriado[];
   ano: number;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  hideTrigger?: boolean;
 }
 
-const FeriadosList = ({ feriados, ano }: FeriadosListProps) => {
+const FeriadosList = ({ feriados, ano, open, onOpenChange, hideTrigger }: FeriadosListProps) => {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="gap-2">
-          <Flag className="w-4 h-4" /> Feriados {ano}
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          <Button variant="outline" className="gap-2">
+            <Flag className="w-4 h-4" /> Feriados {ano}
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Feriados Nacionais - {ano}</DialogTitle>
