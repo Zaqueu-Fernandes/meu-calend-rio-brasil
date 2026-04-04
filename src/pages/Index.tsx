@@ -120,18 +120,58 @@ const Index = () => {
             </div>
             <h1 className="text-xl font-bold text-foreground hidden sm:block">MeuCalendário</h1>
           </div>
-          <div className="flex items-center gap-2">
-            <FeriadosList feriados={feriados} ano={anoAtual} />
-            <MeusEventos categorias={categorias} onAbrirEvento={handleAbrirEvento} />
+          {/* Desktop buttons */}
+          <div className="hidden sm:flex items-center gap-2">
+            <FeriadosList feriados={feriados} ano={anoAtual} open={feriadosOpen} onOpenChange={setFeriadosOpen} />
+            <MeusEventos categorias={categorias} onAbrirEvento={handleAbrirEvento} open={meusEventosOpen} onOpenChange={setMeusEventosOpen} />
             <Button variant="outline" size="sm" className="gap-1" onClick={() => setCategoriasOpen(true)}>
-              <Tag className="w-4 h-4" /> <span className="hidden sm:inline">Categorias</span>
+              <Tag className="w-4 h-4" /> Categorias
             </Button>
             <Button variant="outline" size="sm" className="gap-1" onClick={() => setSecurityOpen(true)}>
-              <ShieldCheck className="w-4 h-4" /> <span className="hidden sm:inline">Segurança</span>
+              <ShieldCheck className="w-4 h-4" /> Segurança
             </Button>
             <Button variant="ghost" size="sm" onClick={signOut} className="gap-1 text-muted-foreground">
-              <LogOut className="w-4 h-4" /> <span className="hidden sm:inline">Sair</span>
+              <LogOut className="w-4 h-4" /> Sair
             </Button>
+          </div>
+
+          {/* Mobile hamburger menu */}
+          <div className="flex sm:hidden items-center gap-2">
+            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Menu className="w-5 h-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[280px]">
+                <SheetHeader>
+                  <SheetTitle className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-primary" /> Menu
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col gap-2 mt-6">
+                  <Button variant="outline" className="justify-start gap-3" onClick={() => { setMenuOpen(false); setFeriadosOpen(true); }}>
+                    <Flag className="w-4 h-4" /> Feriados {anoAtual}
+                  </Button>
+                  <Button variant="outline" className="justify-start gap-3" onClick={() => { setMenuOpen(false); setMeusEventosOpen(true); }}>
+                    <CalendarSearch className="w-4 h-4" /> Meus Eventos
+                  </Button>
+                  <Button variant="outline" className="justify-start gap-3" onClick={() => { setMenuOpen(false); setCategoriasOpen(true); }}>
+                    <Tag className="w-4 h-4" /> Categorias
+                  </Button>
+                  <Button variant="outline" className="justify-start gap-3" onClick={() => { setMenuOpen(false); setSecurityOpen(true); }}>
+                    <ShieldCheck className="w-4 h-4" /> Segurança
+                  </Button>
+                  <hr className="my-2 border-border" />
+                  <Button variant="ghost" className="justify-start gap-3 text-muted-foreground" onClick={() => { setMenuOpen(false); signOut(); }}>
+                    <LogOut className="w-4 h-4" /> Sair
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
+            {/* Hidden instances for dialogs */}
+            <FeriadosList feriados={feriados} ano={anoAtual} open={feriadosOpen} onOpenChange={setFeriadosOpen} hideTrigger />
+            <MeusEventos categorias={categorias} onAbrirEvento={handleAbrirEvento} open={meusEventosOpen} onOpenChange={setMeusEventosOpen} hideTrigger />
           </div>
         </div>
       </header>
