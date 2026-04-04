@@ -131,7 +131,7 @@ const Auth = () => {
             <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center">
               <Calendar className="w-8 h-8 text-primary-foreground" />
             </div>
-            <h1 className="text-4xl font-bold text-foreground">Calendário do Zaqueu</h1>
+            <h1 className="text-4xl font-bold text-foreground">ZakCalendario</h1>
           </div>
         </div>
 

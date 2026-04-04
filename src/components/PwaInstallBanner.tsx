@@ -87,7 +87,7 @@ const PwaInstallBanner = () => {
             </div>
             <div className="flex-1">
               <h3 className="font-bold text-foreground text-lg leading-tight">
-                Instalar Calendário do Zaqueu
+                Instalar ZakCalendario
               </h3>
               <p className="text-sm text-muted-foreground mt-1">
                 Adicione à tela inicial para acesso rápido
