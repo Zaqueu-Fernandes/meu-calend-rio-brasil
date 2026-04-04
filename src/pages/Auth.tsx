@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { Calendar } from 'lucide-react';
 import { buildResetPasswordRedirectUrl, clearRecoveryPending } from '@/lib/authRecovery';
+import Footer from '@/components/Footer';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
