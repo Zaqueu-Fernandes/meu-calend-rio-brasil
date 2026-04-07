@@ -29,6 +29,7 @@ interface EventoFormProps {
 const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onUploadAnexo, eventoParaEditar, categorias = [], onAbrirCategorias, categoriaPendente, onCategoriaPendenteConsumed }: EventoFormProps) => {
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
+  const [dataEvento, setDataEvento] = useState('');
   const [horario, setHorario] = useState('');
   const [cor, setCor] = useState(CORES[0]);
   const [anexoFile, setAnexoFile] = useState<File | null>(null);
@@ -45,6 +46,7 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
     if (eventoParaEditar) {
       setTitulo(eventoParaEditar.titulo);
       setDescricao(eventoParaEditar.descricao || '');
+      setDataEvento(eventoParaEditar.data);
       setHorario(eventoParaEditar.horario || '');
       setCor(eventoParaEditar.cor);
       setAnexoUrl(eventoParaEditar.anexo_url);
@@ -58,6 +60,7 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
         setAlarmeHora('');
       }
     } else {
+      setDataEvento(dataSelecionada.toISOString().split('T')[0]);
       resetForm();
     }
   }, [eventoParaEditar, open]);
@@ -91,6 +94,7 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
       onAtualizar(eventoParaEditar.id, {
         titulo,
         descricao: descricao || null,
+        data: dataEvento,
         horario: horario || null,
         cor,
         anexo_url: finalAnexoUrl,
@@ -101,7 +105,7 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
       onSalvar({
         titulo,
         descricao: descricao || undefined,
-        data: dataSelecionada.toISOString().split('T')[0],
+        data: dataEvento,
         horario: horario || undefined,
         cor,
         anexo_url: finalAnexoUrl || undefined,
@@ -118,6 +122,7 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
   const resetForm = () => {
     setTitulo('');
     setDescricao('');
+    setDataEvento(dataSelecionada.toISOString().split('T')[0]);
     setHorario('');
     setCor(CORES[0]);
     setAnexoFile(null);
@@ -148,6 +153,10 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
           <div className="space-y-2">
             <Label htmlFor="titulo">Título</Label>
             <Input id="titulo" value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Nome do evento" required />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="dataEvento">Data</Label>
+            <Input id="dataEvento" type="date" value={dataEvento} onChange={(e) => setDataEvento(e.target.value)} required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="descricao">Descrição</Label>
