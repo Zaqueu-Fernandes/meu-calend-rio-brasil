@@ -94,6 +94,7 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
       onAtualizar(eventoParaEditar.id, {
         titulo,
         descricao: descricao || null,
+        data: dataEvento,
         horario: horario || null,
         cor,
         anexo_url: finalAnexoUrl,
@@ -104,7 +105,7 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
       onSalvar({
         titulo,
         descricao: descricao || undefined,
-        data: dataSelecionada.toISOString().split('T')[0],
+        data: dataEvento,
         horario: horario || undefined,
         cor,
         anexo_url: finalAnexoUrl || undefined,
