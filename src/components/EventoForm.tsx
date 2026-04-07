@@ -46,6 +46,7 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
     if (eventoParaEditar) {
       setTitulo(eventoParaEditar.titulo);
       setDescricao(eventoParaEditar.descricao || '');
+      setDataEvento(eventoParaEditar.data);
       setHorario(eventoParaEditar.horario || '');
       setCor(eventoParaEditar.cor);
       setAnexoUrl(eventoParaEditar.anexo_url);
@@ -59,6 +60,7 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
         setAlarmeHora('');
       }
     } else {
+      setDataEvento(dataSelecionada.toISOString().split('T')[0]);
       resetForm();
     }
   }, [eventoParaEditar, open]);
