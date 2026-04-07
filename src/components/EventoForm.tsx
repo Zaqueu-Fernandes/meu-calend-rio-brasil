@@ -155,6 +155,10 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
             <Input id="titulo" value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Nome do evento" required />
           </div>
           <div className="space-y-2">
+            <Label htmlFor="dataEvento">Data</Label>
+            <Input id="dataEvento" type="date" value={dataEvento} onChange={(e) => setDataEvento(e.target.value)} required />
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="descricao">Descrição</Label>
             <Textarea id="descricao" value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Detalhes (opcional)" rows={2} />
           </div>
