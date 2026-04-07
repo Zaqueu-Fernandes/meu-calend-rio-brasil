@@ -122,6 +122,7 @@ const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onU
   const resetForm = () => {
     setTitulo('');
     setDescricao('');
+    setDataEvento(dataSelecionada.toISOString().split('T')[0]);
     setHorario('');
     setCor(CORES[0]);
     setAnexoFile(null);
