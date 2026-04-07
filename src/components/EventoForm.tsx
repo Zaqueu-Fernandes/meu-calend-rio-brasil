@@ -29,6 +29,7 @@ interface EventoFormProps {
 const EventoForm = ({ open, onClose, dataSelecionada, onSalvar, onAtualizar, onUploadAnexo, eventoParaEditar, categorias = [], onAbrirCategorias, categoriaPendente, onCategoriaPendenteConsumed }: EventoFormProps) => {
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
+  const [dataEvento, setDataEvento] = useState('');
   const [horario, setHorario] = useState('');
   const [cor, setCor] = useState(CORES[0]);
   const [anexoFile, setAnexoFile] = useState<File | null>(null);
